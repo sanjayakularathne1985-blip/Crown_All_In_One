@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Trade Portal</title>
+  <title>Crown Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -121,7 +121,7 @@
     <header class="top-header">
       <div class="brand" style="display: flex; align-items: center; gap: 15px; font-weight: bold;">
         <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor: pointer; font-size: 20px; color: var(--accent-red-light);"></i>
-        Trade Portal
+        Crown Portal
       </div>
       <div class="header-right">
         <div class="user-profile">
@@ -547,7 +547,7 @@
 
     window.onload = function() {
       try {
-        var savedUser = localStorage.getItem('tradeAppUser');
+        var savedUser = localStorage.getItem('CrownAppUser');
         if(savedUser) { 
           var parsedUser = JSON.parse(savedUser); 
           if(parsedUser && parsedUser.user) {
@@ -626,7 +626,7 @@
     }
 
     function proceedToDashboard(userData) {
-      localStorage.setItem('tradeAppUser', JSON.stringify(userData));
+      localStorage.setItem('CrownAppUser', JSON.stringify(userData));
       currentUser = userData;
       document.getElementById('login-container').style.display = 'none';
       document.getElementById('app-container').style.display = 'flex';
@@ -1071,7 +1071,7 @@
     }
 
     function logout() { 
-      try { localStorage.removeItem('tradeAppUser'); } catch(e){}
+      try { localStorage.removeItem('CrownAppUser'); } catch(e){}
       currentUser = {};
       document.getElementById('app-container').style.display = 'none';
       document.getElementById('login-container').style.display = 'flex';
