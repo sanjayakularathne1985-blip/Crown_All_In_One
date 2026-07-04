@@ -785,12 +785,18 @@
       document.getElementById('model').innerHTML = '<option value="">-- Select Model --</option>'; document.getElementById('model').disabled = true;
     }
     function updateModel() {
+      // Vehicle Type එකයි Make එකයි දෙකම අල්ලගන්නවා
+      var type = document.getElementById('vType').value;
       var make = document.getElementById('make').value;
-      var models = [...new Set(vehicleDB.filter(r => r[1] === make).map(r => r[2]))];
-      var modelSelect = document.getElementById('model'); modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
-      models.forEach(m => modelSelect.add(new Option(m, m))); modelSelect.disabled = false;
+      
+      // Type (r[0]) එකයි Make (r[1]) එකයි දෙකම සමාන වෙන ඒවා විතරක් Filter කරනවා
+      var models = [...new Set(vehicleDB.filter(r => r[0] === type && r[1] === make).map(r => r[2]))];
+      
+      var modelSelect = document.getElementById('model');
+      modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
+      models.forEach(m => modelSelect.add(new Option(m, m)));
+      modelSelect.disabled = false;
     }
-
     async function loadDashboardStats() {
       if(!currentUser.role) return;
       try {
