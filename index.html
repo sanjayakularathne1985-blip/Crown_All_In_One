@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Crown Portal</title>
+  <title>Trade Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -14,7 +14,6 @@
     * { margin:0; padding:0; box-sizing:border-box; font-family:'Inter',sans-serif; }
     body { background-color:var(--bg-light); color:#333; overflow:hidden; }
     
-    /* Login Styles */
     #login-container { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f5f6fa; }
     .login-box { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 320px; text-align: center; border-top: 5px solid #c62828; }
     .login-box h2 { color: #333; margin-top: 0; margin-bottom: 25px; }
@@ -24,7 +23,6 @@
     .login-btn:hover { background: #b71c1c; }
     #changePassBox { display: none; }
 
-    /* App Styles */
     #app-container { display:none; height:100vh; flex-direction:column; }
     .top-header { background-color:var(--bg-dark); color:var(--text-light); height:60px; display:flex; justify-content:space-between; align-items:center; padding:0 20px; border-bottom:1px solid #333; }
     .header-right { display:flex; align-items:center; gap:20px; }
@@ -51,7 +49,7 @@
     .a-card { flex:1; padding:25px; border-radius:8px; color:white; text-align:center; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
     .a-card h3 { font-size:14px; text-transform:uppercase; margin-bottom:10px; letter-spacing:1px; }
     .a-card .a-val { font-size:35px; font-weight:bold; }
-    .bg-blue { background-color:#0d6efd; } .bg-yellow { background-color:#ffc107; color:#000; } .bg-green { background-color:#198754; } .bg-red { background-color:#dc3545; }
+    .bg-blue { background-color:#0d6efd; } .bg-yellow { background-color:#f39c12; color:#fff; } .bg-green { background-color:#27ae60; } .bg-red { background-color:#e74c3c; }
     .admin-forms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
     .user-form-card { background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #0d6efd; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
     .reset-form-card { background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #dc3545; box-shadow:0 4px 6px rgba(0,0,0,0.05); }
@@ -67,10 +65,10 @@
     table { width:100%; border-collapse:collapse; text-align:left; font-size:14px; }
     th { padding:12px; border-bottom:2px solid #ddd; background:#f9f9f9; color:#333; font-weight:600; }
     td { padding:12px; border-bottom:1px solid #eee; color:#555; }
-    .badge-pending { background:#ffc107; color:#000; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; }
-    .badge-accepted { background:#198754; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; }
-    .badge-rejected { background:#dc3545; color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:bold; }
-    .blue-header th { background-color:#0d6efd!important; color:white!important; border-bottom:2px solid #0a58ca!important; }
+    .badge-pending { background:#f1c40f; color:#fff; padding:4px 10px; border-radius:15px; font-size:12px; font-weight:bold; }
+    .badge-accepted { background:#2ecc71; color:#fff; padding:4px 10px; border-radius:15px; font-size:12px; font-weight:bold; }
+    .badge-rejected { background:#e74c3c; color:#fff; padding:4px 10px; border-radius:15px; font-size:12px; font-weight:bold; }
+    .blue-header th { background-color:#2c3e50!important; color:white!important; border-bottom:2px solid #1a252f!important; }
     .photo-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; background:#f1f3f5; padding:15px; border-radius:8px; margin-bottom:20px; }
     .photo-box { background-color:white; padding:10px; border:1px dashed #adb5bd; border-radius:5px; text-align:center; position:relative; height:90px; display:flex; flex-direction:column; justify-content:center; align-items:center; background-repeat:no-repeat; background-position:center; background-size:cover; }
     .photo-box label { font-size:11px; margin-bottom:3px; background:rgba(255,255,255,0.85); padding:2px 5px; border-radius:4px; z-index:2; pointer-events:none; font-weight:bold; color:#333; }
@@ -121,7 +119,7 @@
     <header class="top-header">
       <div class="brand" style="display: flex; align-items: center; gap: 15px; font-weight: bold;">
         <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor: pointer; font-size: 20px; color: var(--accent-red-light);"></i>
-        Crown Portal
+        Trade Portal
       </div>
       <div class="header-right">
         <div class="user-profile">
@@ -176,6 +174,7 @@
 
       <main class="content-area">
         
+        <!-- DASHBOARD SECTION -->
         <div id="view-dashboard" class="view-section">
           
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -245,15 +244,15 @@
             <h4 style="color:#555; margin-top:20px; margin-bottom:10px;">Global Recent Activity (Valuations)</h4>
             <div class="table-container">
               <table id="dashValTable" class="blue-header">
-                <thead style="background:#0000FF;">
+                <thead>
                   <tr>
-                  <th style="background:#000080!important;">Date</th>
-                  <th style="background:#000080!important;">Vehicle No</th>
-                  <th style="background:#000080!important;">Make & Model</th>
-                  <th style="background:#000080!important;">Market Value</th>
-                  <th style="background:#000080!important;">Sale Value</th>
-                  <th style="background:#000080!important;">Status</th>
-                  <th style="background:#000080!important;">Action</th>
+                  <th>Date</th>
+                  <th>Vehicle No</th>
+                  <th>Make & Model</th>
+                  <th>Market Value</th>
+                  <th>Sale Value</th>
+                  <th>Status</th>
+                  <th>Action</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -263,6 +262,7 @@
           
         </div> 
         
+        <!-- OTHER VIEWS (Unchanged layout) -->
         <div id="view-user-mgt" class="view-section" style="display: none;">
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom:20px;">System Admin Overview (User Maintenance)</h2>
           <div class="admin-forms-grid">
@@ -447,7 +447,7 @@
 
           <div class="table-container">
             <table id="valHistoryTable" class="blue-header">
-              <thead><tr><th>Date</th><th>Req By & Branch</th><th>Vehicle No</th><th>Make & Model</th><th>Status</th><th>PDF Report</th></tr></thead>
+              <thead><tr><th>Date</th><th>Req By & Branch</th><th>Vehicle No</th><th>Make & Model</th><th>Status</th><th>Action</th></tr></thead>
               <tbody id="valHistoryBody"><tr><td colspan="6" style="text-align:center;">Loading...</td></tr></tbody>
             </table>
           </div>
@@ -465,12 +465,52 @@
     </div>
   </div>
 
+  <!-- IMAGE ZOOM MODAL -->
   <div id="imgModal" class="modal">
     <button class="rotate-btn" onclick="rotateImage(event)"><i class="fas fa-undo"></i> Rotate</button>
     <span class="close-btn" onclick="closeModal()">×</span>
     <div class="modal-content-container" id="modalContainer"><img class="modal-content" id="fullImage"></div>
   </div>
 
+  <!-- VALUATION DETAILS MODAL (NEW) -->
+  <div id="val-view-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9000; overflow-y:auto;">
+    <div style="width:90%; max-width:800px; margin:5vh auto; background:#fff; border-radius:8px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+      <!-- Header -->
+      <div style="padding:15px 20px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:20px; color:#2c3e50;"><i class="fas fa-clipboard-list" style="color:#e74c3c; margin-right:8px;"></i> Valuation Details</h2>
+        <span onclick="document.getElementById('val-view-modal').style.display='none'" style="font-size:28px; cursor:pointer; color:#95a5a6; line-height:20px;">&times;</span>
+      </div>
+      <!-- Body -->
+      <div style="padding:20px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+          <!-- Left Info Box -->
+          <div style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #eee;">
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Vehicle No:</strong> <span id="v_mod_veh" style="color:#e74c3c; font-weight:bold;"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Make & Model:</strong> <span id="v_mod_make"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>YOM:</strong> <span id="v_mod_yom"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Chassis:</strong> <span id="v_mod_chassis"></span></p>
+            <p style="margin-bottom:0; font-size:15px;"><strong>Engine:</strong> <span id="v_mod_engine"></span></p>
+          </div>
+          <!-- Right Info Box -->
+          <div style="background:#f8f9fa; padding:15px; border-radius:8px; border:1px solid #eee;">
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Req. Amount:</strong> <span id="v_mod_req"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Market Value:</strong> <span id="v_mod_mval" style="color:#27ae60; font-weight:bold;"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Sale Value:</strong> <span id="v_mod_sval" style="color:#2980b9; font-weight:bold;"></span></p>
+            <p style="margin-bottom:10px; font-size:15px;"><strong>Status:</strong> <span id="v_mod_status"></span></p>
+            <p style="margin-bottom:0; font-size:15px;"><strong>Remarks:</strong> <span id="v_mod_rem"></span></p>
+          </div>
+        </div>
+        <!-- Photos Section -->
+        <h3 style="margin-bottom:5px; color:#2c3e50; font-size:16px;"><i class="fas fa-camera"></i> Attached Photos</h3>
+        <p style="font-size:12px; color:#7f8c8d; margin-bottom:15px;">(Click on any image to zoom and rotate)</p>
+        <div id="v_mod_photos" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:15px;">
+          <!-- Photos will be injected here via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RMV APPROVAL MODAL -->
   <div id="rmv-approval-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000;">
     <div style="width:95%; height:95%; margin:1% auto; background:#fff; display:flex; flex-direction:column; border-radius:8px; overflow:hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
       <div style="background:#800000; color:#fff; padding:15px 20px; display:flex; justify-content:space-between; align-items:center;">
@@ -508,46 +548,39 @@
     // ====== API CONFIGURATION ======
     const API_URL = "https://script.google.com/macros/s/AKfycbxhSwnUlTJJQmSJDyznPOPSScR2cprKkx7Fv19OuqO9H2oi_RexTIN41dneOWc40tHmWQ/exec";
 
-    // Utility function to call the backend API (replaces google.script.run)
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
-        let url = API_URL;
-        let options = {};
-
+        let url = API_URL; let options = {};
         if (method === 'GET') {
             const queryParams = new URLSearchParams({ action: action, ...payload });
             url = `${API_URL}?${queryParams.toString()}`;
         } else {
-            options = {
-                method: 'POST',
-                // Mode 'no-cors' cannot be used if we need to read the response. 
-                // Google Apps Script usually requires a workaround or handling CORS via redirects,
-                // but fetch handles basic POST to Web Apps well if content type is text/plain
-                body: JSON.stringify({ action: action, ...payload })
-            };
+            options = { method: 'POST', body: JSON.stringify({ action: action, ...payload }) };
         }
-
-        const response = await fetch(url, options);
-        const data = await response.json();
-        
-        if (!data.success && data.status !== "success" && data.status !== "fail") {
-            throw new Error(data.error || "API Error");
-        }
+        const response = await fetch(url, options); const data = await response.json();
+        if (!data.success && data.status !== "success" && data.status !== "fail") throw new Error(data.error || "API Error");
         return data;
-      } catch (error) {
-        console.error("API Call Failed:", error);
-        throw error;
-      }
+      } catch (error) { console.error("API Call Failed:", error); throw error; }
     }
 
     var currentUser = {}; var rmvMap = null; var mapMarkers = []; var allVehicleData = [];
     var globalRmvData = []; var currentRmvIndex = -1;
-    var vehicleDB = [];
-    var tempUserData = null;
+    var vehicleDB = []; var tempUserData = null;
+    
+    // Arrays to hold valuation data globally for the modal
+    var globalDashValData = []; 
+    var globalHistoryValData = [];
+
+    // URL fixer function (moved globally to be reused)
+    function getImgUrl(url) {
+       if (!url || url === 'No Image') return '';
+       var m = url.match(/[-\w]{25,}/);
+       return m ? `https://lh3.googleusercontent.com/d/${m[0]}` : url;
+    }
 
     window.onload = function() {
       try {
-        var savedUser = localStorage.getItem('CrownAppUser');
+        var savedUser = localStorage.getItem('tradeAppUser');
         if(savedUser) { 
           var parsedUser = JSON.parse(savedUser); 
           if(parsedUser && parsedUser.user) {
@@ -557,14 +590,10 @@
             setupDashboardPostLogin(currentUser); 
           } else { logout(); }
         } else { 
-            // Show Login
             document.getElementById('login-container').style.display = 'flex';
             document.getElementById('app-container').style.display = 'none';
         }
-      } catch(e) { 
-        document.body.innerHTML = '<div style="text-align:center; padding:50px; color:red;"><h2>System Error!</h2><p>' + e.message + '</p></div>';
-        console.error(e); 
-      }
+      } catch(e) { console.error(e); }
     };
 
     // ====== LOGIN FUNCTIONS ======
@@ -573,63 +602,44 @@
       var u = document.getElementById('username').value.trim();
       var p = document.getElementById('password').value.trim();
       if(!u || !p) return Swal.fire("Required", "Please enter both username and password!", "warning");
-      
-      var btn = document.getElementById('loginBtn');
-      btn.innerText = "Authenticating..."; btn.disabled = true;
+      var btn = document.getElementById('loginBtn'); btn.innerText = "Authenticating..."; btn.disabled = true;
 
       try {
         const res = await apiCall('checkLogin', { username: u, password: p });
-        
         if(res.status === "success") {
           tempUserData = res;
           if(res.isNew === "Yes") {
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('changePassBox').style.display = 'block';
-          } else {
-            proceedToDashboard(res);
-          }
+          } else { proceedToDashboard(res); }
         } else {
           Swal.fire("Access Denied", res.msg, "error");
           btn.innerText = "Sign In"; btn.disabled = false;
         }
-      } catch(error) {
-        Swal.fire("Error", "Could not connect to server.", "error");
-        btn.innerText = "Sign In"; btn.disabled = false;
-      }
+      } catch(error) { Swal.fire("Error", "Could not connect to server.", "error"); btn.innerText = "Sign In"; btn.disabled = false; }
     }
 
     async function saveNewPassword() {
-      var p1 = document.getElementById('newPass1').value;
-      var p2 = document.getElementById('newPass2').value;
-      
+      var p1 = document.getElementById('newPass1').value; var p2 = document.getElementById('newPass2').value;
       if(!p1 || !p2) return Swal.fire("Required", "Please fill both password fields!", "warning");
       if(p1 !== p2) return Swal.fire("Mismatch", "Passwords do not match!", "error");
       if(p1.length < 6) return Swal.fire("Weak Password", "Password must be at least 6 characters long.", "warning");
 
-      var btn = document.getElementById('changePassBtn');
-      btn.innerText = "Updating..."; btn.disabled = true;
+      var btn = document.getElementById('changePassBtn'); btn.innerText = "Updating..."; btn.disabled = true;
 
       try {
         const res = await apiCall('updateFirstPassword', { username: tempUserData.username, newPass: p1 });
         if(res.success || res.data === "success") {
           tempUserData.isNew = "No"; 
           Swal.fire({title: "Success!", text: "Password Updated. Redirecting...", icon: "success", timer: 1500, showConfirmButton: false});
-          setTimeout(function() { proceedToDashboard(tempUserData); }, 1500);
-        } else {
-          Swal.fire("Error", res.error || "Update failed", "error");
-          btn.innerText = "Update & Login"; btn.disabled = false;
-        }
-      } catch(error) {
-         Swal.fire("Error", "Could not connect to server.", "error");
-         btn.innerText = "Update & Login"; btn.disabled = false;
-      }
+          setTimeout(() => proceedToDashboard(tempUserData), 1500);
+        } else { Swal.fire("Error", res.error || "Update failed", "error"); btn.innerText = "Update & Login"; btn.disabled = false; }
+      } catch(error) { Swal.fire("Error", "Could not connect to server.", "error"); btn.innerText = "Update & Login"; btn.disabled = false; }
     }
 
     function proceedToDashboard(userData) {
-      localStorage.setItem('CrownAppUser', JSON.stringify(userData));
-      currentUser = userData;
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('app-container').style.display = 'flex';
+      localStorage.setItem('tradeAppUser', JSON.stringify(userData)); currentUser = userData;
+      document.getElementById('login-container').style.display = 'none'; document.getElementById('app-container').style.display = 'flex';
       setupDashboardPostLogin(currentUser);
     }
     
@@ -657,17 +667,8 @@
         loadDashboardStats();
         initVehicleData();
 
-        // Load branches
-        apiCall('getBranchList', {}, 'GET').then(res => {
-            var select = document.getElementById('new-user-branch'); 
-            if(select && res.data){ res.data.forEach(b => select.add(new Option(b, b))); }
-        });
-
-        // Load Users
-        apiCall('getUsernamesList', {}, 'GET').then(res => {
-            var select = document.getElementById('reset-uname'); 
-            if(select && res.data){ res.data.forEach(u => select.add(new Option(u, u))); }
-        });
+        apiCall('getBranchList', {}, 'GET').then(res => { var select = document.getElementById('new-user-branch'); if(select && res.data){ res.data.forEach(b => select.add(new Option(b, b))); } });
+        apiCall('getUsernamesList', {}, 'GET').then(res => { var select = document.getElementById('reset-uname'); if(select && res.data){ res.data.forEach(u => select.add(new Option(u, u))); } });
 
         var adminMenu = document.querySelector('[onclick="toggleSubMenu(\'admin-submenu\', this)"]');
         var valMenu = document.querySelector('[onclick="toggleSubMenu(\'val-submenu\', this)"]');
@@ -682,51 +683,36 @@
         var dashRmv = document.getElementById('dash-rmv-section');
         var dashVal = document.getElementById('dash-val-section');
 
-        if(adminMenu) adminMenu.style.display = 'none';
-        if(rmvAdminBtn) rmvAdminBtn.style.display = 'none';
-        if(valAdminBtn) valAdminBtn.style.display = 'none';
+        if(adminMenu) adminMenu.style.display = 'none'; if(rmvAdminBtn) rmvAdminBtn.style.display = 'none'; if(valAdminBtn) valAdminBtn.style.display = 'none';
 
         if(uRole === 'super admin' || uRole === 'admin' || uRole === 'super user') {
-            if(adminMenu) adminMenu.style.display = 'flex';
-            if(rmvAdminBtn) rmvAdminBtn.style.display = 'flex';
-            if(valAdminBtn) valAdminBtn.style.display = 'flex';
-            if(courierAdminBtn) courierAdminBtn.style.display = 'flex';
+            if(adminMenu) adminMenu.style.display = 'flex'; if(rmvAdminBtn) rmvAdminBtn.style.display = 'flex'; if(valAdminBtn) valAdminBtn.style.display = 'flex'; if(courierAdminBtn) courierAdminBtn.style.display = 'flex';
         } 
         else if (uRole === 'valuation approval user' || uRole === 'valuation admin') {
-            if(rmvMenu) rmvMenu.style.display = 'none';
-            if(courierMenu) courierMenu.style.display = 'none';
+            if(rmvMenu) rmvMenu.style.display = 'none'; if(courierMenu) courierMenu.style.display = 'none';
             if(valAdminBtn) valAdminBtn.style.display = 'flex';
-            if(dashCourier) dashCourier.style.display = 'none';
-            if(dashRmv) dashRmv.style.display = 'none';
+            if(dashCourier) dashCourier.style.display = 'none'; if(dashRmv) dashRmv.style.display = 'none';
         } 
         else if (uRole === 'rmv request approval user' || uRole === 'rmv branch' || uRole === 'rmv approval') {
             if(valMenu) valMenu.style.display = 'none';
-            if(rmvAdminBtn) rmvAdminBtn.style.display = 'flex';
-            if(courierAdminBtn) courierAdminBtn.style.display = 'flex';
+            if(rmvAdminBtn) rmvAdminBtn.style.display = 'flex'; if(courierAdminBtn) courierAdminBtn.style.display = 'flex';
             if(dashVal) dashVal.style.display = 'none';
         }
 
-        // Setup Forms with API Calls
         var valForm = document.getElementById('vForm');
         if(valForm) {
           valForm.onsubmit = async function(e) {
-            e.preventDefault(); 
-            const vbtn = document.getElementById('valSubmitBtn'); vbtn.disabled = true; vbtn.innerText = "Processing Details...";
+            e.preventDefault(); const vbtn = document.getElementById('valSubmitBtn'); vbtn.disabled = true; vbtn.innerText = "Processing Details...";
             try {
               const formData = {}; 
-              e.target.querySelectorAll('input:not([type="file"]), select, textarea').forEach(function(inp) { formData[inp.name] = inp.value; }); 
-              formData.requesterEmail = currentUser.email || "";
-              formData.requesterName = currentUser.user || "Unknown"; 
-              formData.branch = currentUser.branch || "Unknown"; 
+              e.target.querySelectorAll('input:not([type="file"]), select, textarea').forEach(inp => formData[inp.name] = inp.value); 
+              formData.requesterEmail = currentUser.email || ""; formData.requesterName = currentUser.user || "Unknown"; formData.branch = currentUser.branch || "Unknown"; 
               
               let filesToUpload = []; 
-              e.target.querySelectorAll('input[type="file"]').forEach(function(inp) { 
-                if (inp.files.length > 0) filesToUpload.push({ inputName: inp.name, file: inp.files[0] }); 
-                else formData[inp.name] = "No Image"; 
-              });
+              e.target.querySelectorAll('input[type="file"]').forEach(inp => { if (inp.files.length > 0) filesToUpload.push({ inputName: inp.name, file: inp.files[0] }); else formData[inp.name] = "No Image"; });
               
               for (let i = 0; i < filesToUpload.length; i++) {
-                let f = filesToUpload[i]; vbtn.innerText = "Uploading File " + (i+1) + " of " + filesToUpload.length + "...";
+                let f = filesToUpload[i]; vbtn.innerText = `Uploading File ${i+1} of ${filesToUpload.length}...`;
                 await new Promise(r => setTimeout(r, 100)); 
                 let base64Str, typeStr, nameStr;
                 if (f.file.type === "application/pdf") { 
@@ -740,15 +726,10 @@
                 if (result && result.success) { formData[result.key] = result.url; } else { throw new Error("Failed to upload"); } 
               }
               vbtn.innerText = "Saving Request to Database...";
-              
               const serverRes = await apiCall('submitValuationForm', { data: formData });
-              if(serverRes.success) { 
-                Swal.fire("Success", serverRes.result, "success"); 
-                e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); 
-                loadDashboardStats(); switchView('dashboard', null); 
-              } else { Swal.fire("System Error", serverRes.error, "error"); }
+              if(serverRes.success) { Swal.fire("Success", serverRes.result, "success"); e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); loadDashboardStats(); switchView('dashboard', null); } 
+              else { Swal.fire("System Error", serverRes.error, "error"); }
               vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false;
-              
             } catch (error) { Swal.fire("Upload Error", error.message, "error"); vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false; }
           };
         }
@@ -756,43 +737,33 @@
         var rmvForm = document.getElementById('rmvForm');
         if(rmvForm) {
           rmvForm.onsubmit = async function(e) {
-            e.preventDefault();
-            const rbtn = document.getElementById('rmvSubmitBtn');
-            rbtn.disabled = true; rbtn.innerText = "Getting GPS Location... 📍";
-            
+            e.preventDefault(); const rbtn = document.getElementById('rmvSubmitBtn'); rbtn.disabled = true; rbtn.innerText = "Getting GPS Location... 📍";
             const executeSubmit = async function(lat, lng) {
               rbtn.innerText = "Uploading CR Book... ⏳";
               try {
                 const formData = { vehicleNo: e.target.vehicleNo.value, email: currentUser.email, user: currentUser.user, branch: currentUser.branch, lat: lat, lng: lng };
                 let fileInput = e.target.querySelector('input[type="file"]');
                 if(fileInput.files.length > 0) {
-                  let f = fileInput.files[0];
-                  let base64Str, typeStr, nameStr;
+                  let f = fileInput.files[0]; let base64Str, typeStr, nameStr;
                   if (f.type === "application/pdf") { 
                     let b64 = await new Promise((res2, rej) => { let fr = new FileReader(); fr.onload = ev => res2(ev.target.result); fr.onerror = err => rej(err); fr.readAsDataURL(f); }); 
                     base64Str = b64.split(',')[1]; typeStr = 'application/pdf'; nameStr = f.name; 
                   } else { 
                     let compressed = await compressImage(f, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
                   }
-                  
                   let result = await apiCall('uploadValuationImage', { data: { base64: base64Str, type: typeStr, name: nameStr, key: 'rmv_cr', vehicleNo: formData.vehicleNo } }); 
                   if (result && result.success) { formData.crBookUrl = result.url; } else { throw new Error("Failed to upload CR Book"); }
                 } else { throw new Error("CR Book is required!"); }
                 
                 rbtn.innerText = "Saving Request to Database...";
                 const serverRes = await apiCall('submitRmvRequest', { data: formData });
-                if(serverRes.success) { 
-                  Swal.fire("Success", serverRes.msg, "success"); e.target.reset(); 
-                  loadDashboardStats(); switchView('dashboard', null); 
-                } else { Swal.fire("System Error", serverRes.msg, "error"); }
+                if(serverRes.success) { Swal.fire("Success", serverRes.msg, "success"); e.target.reset(); loadDashboardStats(); switchView('dashboard', null); } 
+                else { Swal.fire("System Error", serverRes.msg, "error"); }
                 rbtn.innerText = "Submit Request & Capture Location 📍"; rbtn.disabled = false;
-
               } catch (error) { Swal.fire("Upload Error", error.message, "error"); rbtn.innerText = "Submit Request & Capture Location 📍"; rbtn.disabled = false; }
             };
-
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(pos => executeSubmit(pos.coords.latitude, pos.coords.longitude), err => executeSubmit("", ""), { enableHighAccuracy: true, timeout: 10000 });
-            } else { executeSubmit("", ""); }
+            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(pos => executeSubmit(pos.coords.latitude, pos.coords.longitude), err => executeSubmit("", ""), { enableHighAccuracy: true, timeout: 10000 }); } 
+            else { executeSubmit("", ""); }
           };
         }
       } catch(e) { console.log(e); }
@@ -800,60 +771,46 @@
 
     async function initVehicleData() {
       try {
-        const res = await apiCall('getVehicleDropdownData', {}, 'GET');
-        vehicleDB = res.data;
+        const res = await apiCall('getVehicleDropdownData', {}, 'GET'); vehicleDB = res.data;
         var types = [...new Set(vehicleDB.slice(1).map(r => r[0]).filter(Boolean))];
-        var vTypeSelect = document.getElementById('vType');
-        vTypeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+        var vTypeSelect = document.getElementById('vType'); vTypeSelect.innerHTML = '<option value="">-- Select Type --</option>';
         types.forEach(t => vTypeSelect.add(new Option(t, t)));
-      } catch(e) { console.error("Error loading vehicle data", e); }
+      } catch(e) {}
     }
-
     function updateMake() {
       var type = document.getElementById('vType').value;
       var makes = [...new Set(vehicleDB.filter(r => r[0] === type).map(r => r[1]))];
-      var makeSelect = document.getElementById('make');
-      makeSelect.innerHTML = '<option value="">-- Select Make --</option>';
-      makes.forEach(m => makeSelect.add(new Option(m, m)));
-      makeSelect.disabled = false;
-      document.getElementById('model').innerHTML = '<option value="">-- Select Model --</option>';
-      document.getElementById('model').disabled = true;
+      var makeSelect = document.getElementById('make'); makeSelect.innerHTML = '<option value="">-- Select Make --</option>';
+      makes.forEach(m => makeSelect.add(new Option(m, m))); makeSelect.disabled = false;
+      document.getElementById('model').innerHTML = '<option value="">-- Select Model --</option>'; document.getElementById('model').disabled = true;
     }
-
     function updateModel() {
       var make = document.getElementById('make').value;
       var models = [...new Set(vehicleDB.filter(r => r[1] === make).map(r => r[2]))];
-      var modelSelect = document.getElementById('model');
-      modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
-      models.forEach(m => modelSelect.add(new Option(m, m)));
-      modelSelect.disabled = false;
+      var modelSelect = document.getElementById('model'); modelSelect.innerHTML = '<option value="">-- Select Model --</option>';
+      models.forEach(m => modelSelect.add(new Option(m, m))); modelSelect.disabled = false;
     }
 
     async function loadDashboardStats() {
       if(!currentUser.role) return;
       try {
         const res = await apiCall('getHomeDashboardData', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
-        const data = res.data;
-        if(!data) return;
+        const data = res.data; if(!data) return;
         
-        // 1. Courier Cards Update
         if(document.getElementById('dash-c-tot')) document.getElementById('dash-c-tot').innerText = data.courier.total;
         if(document.getElementById('dash-c-pen')) document.getElementById('dash-c-pen').innerText = data.courier.pending;
         if(document.getElementById('dash-c-del')) document.getElementById('dash-c-del').innerText = data.courier.delivered;
         
-        // 2. RMV Cards Update
         if(document.getElementById('dash-r-tot')) document.getElementById('dash-r-tot').innerText = data.rmv.total;
         if(document.getElementById('dash-r-pen')) document.getElementById('dash-r-pen').innerText = data.rmv.pending;
         if(document.getElementById('dash-r-app')) document.getElementById('dash-r-app').innerText = data.rmv.approved;
         if(document.getElementById('dash-r-rej')) document.getElementById('dash-r-rej').innerText = data.rmv.rejected;
         
-        // 3. VALUATION CARDS UPDATE
         if(document.getElementById('dash-v-tot')) document.getElementById('dash-v-tot').innerText = data.valuation.total;
         if(document.getElementById('dash-v-pen')) document.getElementById('dash-v-pen').innerText = data.valuation.pending;
         if(document.getElementById('dash-v-app')) document.getElementById('dash-v-app').innerText = data.valuation.approved;
         if(document.getElementById('dash-v-rej')) document.getElementById('dash-v-rej').innerText = data.valuation.rejected;
 
-        // Courier Table
         var cTbody = document.querySelector("#dashMasterTable tbody");
         if(cTbody) {
             cTbody.innerHTML = "";
@@ -864,7 +821,6 @@
             });
         }
 
-        // RMV Table
         var rTbody = document.querySelector("#dashRmvTable tbody");
         if(rTbody) {
             rTbody.innerHTML = "";
@@ -876,44 +832,88 @@
             });
         }
 
-        // Valuation Table
         var vTbody = document.querySelector("#dashValTable tbody");
         if(vTbody) {
             vTbody.innerHTML = "";
+            globalDashValData = data.valuation.list; // Save globally for the popup
             if(data.valuation.list.length === 0) vTbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No Recent Activity</td></tr>";
-            data.valuation.list.forEach(r => {
-              var badge = r.status.toLowerCase().includes('pending') ? '<span class="badge-pending">Pending</span>' : (r.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : '<span class="badge-rejected">Rejected</span>');
-              var pdfLink = r.pdf ? `<a href="${r.pdf}" target="_blank">View PDF</a>` : "-";
-              vTbody.innerHTML += `<tr><td>${r.date}</td><td>${r.vehNo}</td><td>${r.makeModel}</td><td>${r.marketVal}</td><td>${r.saleVal}</td><td>${badge}</td><td>${pdfLink}</td></tr>`;
+            
+            data.valuation.list.forEach((r, idx) => {
+              var badge = r.status.toLowerCase().includes('pending') ? '<span class="badge-pending">Pending Approval</span>' : (r.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : '<span class="badge-rejected">Rejected</span>');
+              var viewBtn = `<button onclick="openValViewModal(${idx}, 'dash')" style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px; font-size:13px;">View</button>`;
+              var pdfBtn = r.pdf ? `<a href="${r.pdf}" target="_blank" style="background:#0d6efd; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:13px; font-weight:bold; display:inline-block;">PDF</a>` : "";
+              
+              vTbody.innerHTML += `<tr><td>${r.date}</td><td><b>${r.vehNo}</b></td><td>${r.makeModel}</td><td>${r.marketVal}</td><td>${r.saleVal}</td><td>${badge}</td><td>${viewBtn}${pdfBtn}</td></tr>`;
             });
         }
-      } catch(e) { console.error("Dashboard error", e); }
+      } catch(e) { console.error(e); }
+    }
+
+    // ====== NEW MODAL VIEW LOGIC ======
+    function openValViewModal(index, source) {
+        var d = source === 'dash' ? globalDashValData[index] : globalHistoryValData[index];
+        if(!d) return;
+
+        document.getElementById('v_mod_veh').innerText = d.vehNo;
+        document.getElementById('v_mod_make').innerText = d.makeModel;
+        document.getElementById('v_mod_yom').innerText = d.yom || "-";
+        document.getElementById('v_mod_chassis').innerText = d.chassis || "-";
+        document.getElementById('v_mod_engine').innerText = d.engine || "-";
+
+        document.getElementById('v_mod_req').innerText = d.reqAmnt && d.reqAmnt !== "-" ? "Rs. " + Number(d.reqAmnt).toLocaleString() : "-";
+        document.getElementById('v_mod_mval').innerText = d.marketVal && d.marketVal !== "-" ? "Rs. " + Number(d.marketVal).toLocaleString() : "-";
+        document.getElementById('v_mod_sval').innerText = d.saleVal && d.saleVal !== "-" ? "Rs. " + Number(d.saleVal).toLocaleString() : "-";
+        document.getElementById('v_mod_status').innerText = d.status;
+        document.getElementById('v_mod_rem').innerText = d.adminRemarks && d.adminRemarks !== "-" ? d.adminRemarks : (d.remarks || "N/A");
+
+        var pContainer = document.getElementById('v_mod_photos');
+        pContainer.innerHTML = '';
+        var errImg = "this.onerror=null; this.src='https://placehold.co/250x180?text=Image+Error';";
+
+        const addPhoto = (url, label) => {
+            if(url && url !== 'No Image') {
+                pContainer.innerHTML += `
+                <div style="background:#000; border-radius:8px; overflow:hidden; text-align:center; cursor:pointer; border:1px solid #ddd;" onclick="openModal('${getImgUrl(url)}')">
+                    <img src="${getImgUrl(url)}" onerror="${errImg}" style="width:100%; height:150px; object-fit:contain; background:#333; display:block;">
+                    <div style="background:#eee; padding:8px; font-weight:bold; font-size:12px; color:#333; text-transform:uppercase;">${label}</div>
+                </div>`;
+            }
+        };
+
+        addPhoto(d.imgFront, "Front View");
+        addPhoto(d.imgBack, "Rear View");
+        addPhoto(d.imgCr, "CR Copy");
+        addPhoto(d.imgChassis, "Chassis");
+        addPhoto(d.imgEngine, "Engine Bay");
+        addPhoto(d.imgMeter, "Meter");
+        addPhoto(d.imgSheet, "Inspection Sheet");
+        addPhoto(d.imgInside, "Interior");
+        addPhoto(d.imgTyre, "Tyres");
+        addPhoto(d.imgCustomer, "Customer View");
+
+        document.getElementById('val-view-modal').style.display = 'block';
     }
 
     async function loadRMVData() {
       var tbody = document.querySelector("#rmvTable tbody");
       if(!tbody) return;
       tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px;'>Loading data...</td></tr>";
-      
       try {
         const res = await apiCall('getRMVData', {}, 'GET');
-        const data = res.data;
         var myRole = currentUser.role.toLowerCase(); var myBranch = currentUser.branch.toLowerCase();
-        
-        globalRmvData = data.filter(r => (myRole === "super admin" || myRole === "rmv request approval user" || myBranch === "rmv" || String(r.branch).toLowerCase() === myBranch));
+        globalRmvData = res.data.filter(r => (myRole === "super admin" || myRole === "rmv request approval user" || myBranch === "rmv" || String(r.branch).toLowerCase() === myBranch));
         
         tbody.innerHTML = "";
         if (globalRmvData.length === 0) { tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; padding:20px;'>No RMV requests found.</td></tr>"; return; }
         for (var i = 0; i < globalRmvData.length; i++) {
           var row = globalRmvData[i]; var statusBadge = "";
-          if(row.status === 'Pending') statusBadge = '<span style="background:#ffc107; color:#000; padding:5px 12px; border-radius:4px; font-weight:bold;">Pending</span>';
-          else if(row.status === 'Approved') statusBadge = '<span style="background:#198754; color:#fff; padding:5px 12px; border-radius:4px; font-weight:bold;">Approved</span>';
-          else statusBadge = '<span style="background:#dc3545; color:#fff; padding:5px 12px; border-radius:4px; font-weight:bold;">Rejected</span>';
+          if(row.status === 'Pending') statusBadge = '<span class="badge-pending">Pending</span>';
+          else if(row.status === 'Approved') statusBadge = '<span class="badge-accepted">Approved</span>';
+          else statusBadge = '<span class="badge-rejected">Rejected</span>';
           var actionBtn = "-";
           if (myRole === 'super admin' || myRole === 'rmv request approval user' || myBranch === "rmv") { actionBtn = `<button onclick="openRmvModal(${i})" style="background:#0d6efd; color:#fff; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">View & Confirm</button>`; }
           var actByText = (row.approvedBy && row.approvedBy !== "-") ? row.approvedBy : '<span style="color:#999;font-size:12px;">Pending</span>';
-          var tr = `<tr style="border-bottom:1px solid #eee;"><td>${row.date}</td><td><b>${row.reqId}</b></td><td><span style="background:#2d2d2d; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold;">${row.vehicleNo}</span></td><td>${row.branch}</td><td>${actByText}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
-          tbody.innerHTML += tr;
+          tbody.innerHTML += `<tr style="border-bottom:1px solid #eee;"><td>${row.date}</td><td><b>${row.reqId}</b></td><td><span style="background:#2d2d2d; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold;">${row.vehicleNo}</span></td><td>${row.branch}</td><td>${actByText}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
         }
       } catch(e) { console.error(e); }
     }
@@ -942,7 +942,7 @@
     var rmvScale = 1, rmvRotate = 0, rmvPanning = false, rmvPx = 0, rmvPy = 0, rmvSx = 0, rmvSy = 0;
     var rContainer = document.getElementById("img_container"); var rImg = document.getElementById("mod_img");
 
-    function applyRmvTransform() { rImg.style.transform = 'translate(' + rmvPx + 'px, ' + rmvPy + 'px) scale(' + rmvScale + ') rotate(' + rmvRotate + 'deg)'; }
+    function applyRmvTransform() { rImg.style.transform = `translate(${rmvPx}px, ${rmvPy}px) scale(${rmvScale}) rotate(${rmvRotate}deg)`; }
     function zoomRmvImg() { rmvScale += 0.5; if(rmvScale > 4) rmvScale = 1; applyRmvTransform(); }
     function rotateRmvImg() { rmvRotate += 90; if(rmvRotate >= 360) rmvRotate = 0; applyRmvTransform(); }
     function resetRmvImg() { rmvScale = 1; rmvRotate = 0; rmvPx = 0; rmvPy = 0; applyRmvTransform(); }
@@ -956,15 +956,10 @@
 
     function handleImgError(imgElem) { 
       imgElem.style.display = 'none'; 
-      var iframe = document.getElementById('mod_frame'); 
-      var item = globalRmvData[currentRmvIndex];
-      if(!item) return;
-      var url = item.fileUrl; 
-      var fileIdMatch = url ? url.match(/[-\w]{25,}/) : null; 
-      if(fileIdMatch) iframe.src = "https://drive.google.com/file/d/" + fileIdMatch[0] + "/preview"; 
-      else iframe.src = url || ""; 
-      iframe.style.display = 'block'; 
-      document.getElementById('zoomRotateControls').style.display = 'none'; 
+      var iframe = document.getElementById('mod_frame'); var item = globalRmvData[currentRmvIndex]; if(!item) return;
+      var url = item.fileUrl; var fileIdMatch = url ? url.match(/[-\w]{25,}/) : null; 
+      if(fileIdMatch) iframe.src = `https://drive.google.com/file/d/${fileIdMatch[0]}/preview`; else iframe.src = url || ""; 
+      iframe.style.display = 'block'; document.getElementById('zoomRotateControls').style.display = 'none'; 
     }
 
     function openRmvModal(index) {
@@ -974,22 +969,11 @@
       document.getElementById('mod_status').innerText = item.status; document.getElementById('mod_status').style.background = badgeColor; document.getElementById('mod_status').style.color = textColor;
       document.getElementById('mod_action_by').innerText = item.approvedBy && item.approvedBy !== "-" ? item.approvedBy : "Not Actioned Yet";
       if(item.status === 'Pending') document.getElementById('mod_action_btns').style.display = 'block'; else document.getElementById('mod_action_btns').style.display = 'none';
-      
       resetRmvImg();
       
       var url = item.fileUrl; var fileIdMatch = url ? url.match(/[-\w]{25,}/) : null;
-      if (fileIdMatch) { 
-          rImg.src = "https://lh3.googleusercontent.com/d/" + fileIdMatch[0]; 
-          rImg.style.display = 'block'; 
-          document.getElementById('mod_frame').style.display = 'none'; 
-          document.getElementById('zoomRotateControls').style.display = 'flex'; 
-      }
-      else { 
-          document.getElementById('mod_frame').src = url || ""; 
-          document.getElementById('mod_frame').style.display = 'block'; 
-          rImg.style.display = 'none'; 
-          document.getElementById('zoomRotateControls').style.display = 'none'; 
-      }
+      if (fileIdMatch) { rImg.src = `https://lh3.googleusercontent.com/d/${fileIdMatch[0]}`; rImg.style.display = 'block'; document.getElementById('mod_frame').style.display = 'none'; document.getElementById('zoomRotateControls').style.display = 'flex'; }
+      else { document.getElementById('mod_frame').src = url || ""; document.getElementById('mod_frame').style.display = 'block'; rImg.style.display = 'none'; document.getElementById('zoomRotateControls').style.display = 'none'; }
       document.getElementById('rmv-approval-modal').style.display = 'block';
     }
 
@@ -997,27 +981,17 @@
       var item = globalRmvData[currentRmvIndex];
       Swal.fire({ title: 'Confirm Action', text: `Mark this request as ${status}?`, icon: 'warning', showCancelButton: true, confirmButtonColor: status === 'Approved' ? '#198754' : '#dc3545', confirmButtonText: `Yes, ${status} it!` }).then(async function(result) {
         if (result.isConfirmed) {
-          document.getElementById('mod_action_btns').style.display = 'none'; 
-          Swal.fire({title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-          
+          document.getElementById('mod_action_btns').style.display = 'none'; Swal.fire({title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
           try {
              const res = await apiCall('updateRMVStatus', { reqId: item.reqId, actionBy: currentUser.user, status: status });
-             globalRmvData[currentRmvIndex].status = status; 
-             globalRmvData[currentRmvIndex].approvedBy = currentUser.user; 
-             
-             var nextIndex = -1;
-             for(var i = 0; i < globalRmvData.length; i++) { 
-                 if(globalRmvData[i].status === 'Pending') { nextIndex = i; break; } 
-             }
-             
+             globalRmvData[currentRmvIndex].status = status; globalRmvData[currentRmvIndex].approvedBy = currentUser.user; 
+             var nextIndex = -1; for(var i = 0; i < globalRmvData.length; i++) { if(globalRmvData[i].status === 'Pending') { nextIndex = i; break; } }
              if(nextIndex !== -1) { 
                  Swal.fire({title: "Success", text: (res.data || res.success) + " Loading next...", icon: "success", timer: 1200, showConfirmButton: false});
                  setTimeout(() => openRmvModal(nextIndex), 1200); 
              } else { 
                  Swal.fire("All Done!", "No more pending RMV requests.", "success");
-                 document.getElementById('rmv-approval-modal').style.display = 'none'; 
-                 loadRMVData();
-                 loadDashboardStats();
+                 document.getElementById('rmv-approval-modal').style.display = 'none'; loadRMVData(); loadDashboardStats();
              }
           } catch(e) { Swal.fire("Error", "Could not update status", "error"); }
         }
@@ -1028,7 +1002,6 @@
       var b = document.getElementById('new-user-branch').value; var n = document.getElementById('new-user-name').value; var u = document.getElementById('new-user-uname').value; var e = document.getElementById('new-user-email').value;
       if(!b || !n || !u || !e) { Swal.fire("Required", "Please fill all fields!", "warning"); return; }
       Swal.fire({title: 'Creating User...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-      
       try {
         const res = await apiCall('createNewSystemUser', { branch: b, name: n, username: u, email: e });
         if(res.success) { 
@@ -1046,7 +1019,6 @@
       var u = document.getElementById('reset-uname').value;
       if(!u) { Swal.fire("Required", "Select a username first!", "warning"); return; }
       Swal.fire({title: 'Resetting Password...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
-      
       try {
         const res = await apiCall('resetSystemUserPassword', { username: u });
         if(res.success) { Swal.fire("Success!", res.msg, "success"); } else { Swal.fire("Error", res.msg || "Failed", "error"); }
@@ -1054,7 +1026,6 @@
     }
 
     function initMap() { if (!rmvMap && document.getElementById('map')) { var streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'); var satelliteMap = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {maxZoom: 20}); rmvMap = L.map('map', { center: [7.8731, 80.7718], zoom: 7, layers: [streetMap] }); L.control.layers({"Street Map 🗺️": streetMap, "Satellite Map 🌍": satelliteMap}).addTo(rmvMap); } loadMapData(); }
-    
     async function loadMapData() { 
       try {
           const res = await apiCall('getHomeDashboardData', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
@@ -1063,20 +1034,15 @@
               if (row.lat && row.lng) { 
                   var color = row.status.toLowerCase() === 'pending' ? '#0d6efd' : '#20c997'; 
                   var marker = L.marker([parseFloat(row.lat) + (Math.random()-0.5)*0.0003, parseFloat(row.lng) + (Math.random()-0.5)*0.0003], {icon: L.divIcon({className: 'custom-pin', html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:3px; border:2px solid white;"></div>`, iconSize: [16, 16]})}).addTo(rmvMap); 
-                  marker.bindPopup(`<b>📦 Courier: ${row.type}</b><br>ID: ${row.id}<br>Status: <b>${row.status}</b>`); 
-                  mapMarkers.push(marker); 
+                  marker.bindPopup(`<b>📦 Courier: ${row.type}</b><br>ID: ${row.id}<br>Status: <b>${row.status}</b>`); mapMarkers.push(marker); 
               } 
           }); 
       } catch(e) { console.error("Map Error", e); }
     }
 
     function logout() { 
-      try { localStorage.removeItem('CrownAppUser'); } catch(e){}
-      currentUser = {};
-      document.getElementById('app-container').style.display = 'none';
-      document.getElementById('login-container').style.display = 'flex';
-      document.getElementById('username').value = "";
-      document.getElementById('password').value = "";
+      try { localStorage.removeItem('tradeAppUser'); } catch(e){}
+      currentUser = {}; document.getElementById('app-container').style.display = 'none'; document.getElementById('login-container').style.display = 'flex'; document.getElementById('username').value = ""; document.getElementById('password').value = "";
     }
 
     function toggleSidebar() { document.getElementById('main-sidebar').classList.toggle('closed'); }
@@ -1086,12 +1052,10 @@
       document.querySelectorAll('.menu-item').forEach(el => { el.classList.remove('active'); var ic = el.getAttribute('data-icon'); if(ic) el.querySelector('i').className = ic; });
       if(element) { element.classList.add('active'); element.querySelector('i').className = 'fas fa-check-circle'; }
       document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
-      var view = document.getElementById('view-' + viewId);
-      if(view) view.style.display = 'block';
+      var view = document.getElementById('view-' + viewId); if(view) view.style.display = 'block';
       if(viewId === 'dashboard') loadDashboardStats();
       if(viewId === 'courier-new') { generateAutoId(); loadBranchDropdown(); }
       if(viewId === 'courier-admin') loadCourierData();
-      if(viewId === 'rmv-new') { /* No immediate gen required now */ }
       if(viewId === 'rmv-admin') { loadRMVData(); }
       if(viewId === 'val-admin') { loadPendingValuations(); }
       if(viewId === 'val-history') { loadValuationHistory(); }
@@ -1110,117 +1074,63 @@
     if(container) container.onmousemove = function(e) { if(!panning) return; pointX = e.clientX - startX; pointY = e.clientY - startY; updateTransform(); } 
     window.addEventListener('keydown', function(e) { if(modal && modal.style.display === "block" && e.key === "Escape") closeModal(); });
 
-    // ====== COURIER PORTAL FUNCTIONS ======
-    
     async function generateAutoId() {
       var idInput = document.getElementById('p_id');
       if(idInput) {
         idInput.value = "Generating ID...";
-        try {
-            const res = await apiCall('generateAutoId', { branch: currentUser.branch }, 'GET');
-            idInput.value = res.data;
-        } catch(e) { idInput.value = "Error"; }
+        try { const res = await apiCall('generateAutoId', { branch: currentUser.branch }, 'GET'); idInput.value = res.data; } catch(e) { idInput.value = "Error"; }
       }
     }
 
     async function loadBranchDropdown() {
       var select = document.getElementById('target_branch');
       if(select) {
-        try {
-            const res = await apiCall('getBranchList', {}, 'GET');
-            select.innerHTML = '<option value="">-- Select Target Branch --</option>';
-            res.data.forEach(b => select.add(new Option(b, b)));
-        } catch(e) { console.error(e); }
+        try { const res = await apiCall('getBranchList', {}, 'GET'); select.innerHTML = '<option value="">-- Select Target Branch --</option>'; res.data.forEach(b => select.add(new Option(b, b))); } catch(e) {}
       }
     }
 
     function saveCourierData() {
-      var id = document.getElementById('p_id').value;
-      var type = document.getElementById('p_type').value;
-      var branch = document.getElementById('target_branch').value;
-      var vehicle = document.getElementById('p_vehicle').value;
-      var remarks = document.getElementById('p_remarks').value;
-
+      var id = document.getElementById('p_id').value; var type = document.getElementById('p_type').value; var branch = document.getElementById('target_branch').value; var vehicle = document.getElementById('p_vehicle').value; var remarks = document.getElementById('p_remarks').value;
       if(!branch) return Swal.fire("Required", "Please select Target Branch!", "warning");
-      
-      var btn = document.getElementById('sendBtn');
-      btn.disabled = true; 
-      btn.innerText = "Getting Location & Dispatching... 📍";
+      var btn = document.getElementById('sendBtn'); btn.disabled = true; btn.innerText = "Getting Location & Dispatching... 📍";
 
       const executeCourierSubmit = async function(lat, lng) {
-         var data = { 
-           id: id, type: type, toBranch: branch, vehicle: vehicle, 
-           remarks: remarks, fromBranch: currentUser.branch, 
-           sender: currentUser.user, email: currentUser.email, 
-           lat: lat, lng: lng 
-         };
-         
+         var data = { id: id, type: type, toBranch: branch, vehicle: vehicle, remarks: remarks, fromBranch: currentUser.branch, sender: currentUser.user, email: currentUser.email, lat: lat, lng: lng };
          try {
              const res = await apiCall('submitCourier', { data: data });
              if(res.success) { 
                  var emailMsg = res.email === "Sent" ? " & Email Sent!" : " (No Email Sent)";
                  Swal.fire("Success", "Package Dispatched" + emailMsg, "success");
-                 document.getElementById('p_vehicle').value = ""; 
-                 document.getElementById('p_remarks').value = "";
+                 document.getElementById('p_vehicle').value = ""; document.getElementById('p_remarks').value = "";
                  generateAutoId(); loadDashboardStats(); loadCourierData();
              } else { Swal.fire("Error", res.msg || "Failed", "error"); }
          } catch(e) { Swal.fire("Error", "Network Error", "error"); }
          btn.disabled = false; btn.innerText = "Dispatch Package";
       };
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => executeCourierSubmit(pos.coords.latitude, pos.coords.longitude), 
-          err => { 
-            Swal.fire("Location Blocked", "Saving without GPS location.", "info");
-            executeCourierSubmit("Location Blocked", "Location Blocked"); 
-          }, 
-          { enableHighAccuracy: true, timeout: 8000 }
-        );
-      } else { executeCourierSubmit("Not Supported", "Not Supported"); }
+      if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( pos => executeCourierSubmit(pos.coords.latitude, pos.coords.longitude), err => { Swal.fire("Location Blocked", "Saving without GPS location.", "info"); executeCourierSubmit("Location Blocked", "Location Blocked"); }, { enableHighAccuracy: true, timeout: 8000 } ); } 
+      else { executeCourierSubmit("Not Supported", "Not Supported"); }
     }
 
     async function loadCourierData() {
       var tbody = document.querySelector("#parcelTable tbody");
       if(!tbody) return;
       tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Loading data...</td></tr>";
-      
       try {
-        const res = await apiCall('getCourierData', {}, 'GET');
-        const data = res.data;
-        tbody.innerHTML = "";
+        const res = await apiCall('getCourierData', {}, 'GET'); const data = res.data; tbody.innerHTML = "";
+        if(!data || data.length === 0) { tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No Data Found</td></tr>"; return; }
         
-        if(!data || data.length === 0) { 
-          tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No Data Found</td></tr>"; 
-          return; 
-        }
-        
-        var hasData = false;
-        var myBr = currentUser.branch ? currentUser.branch.trim().toLowerCase() : "";
-        var myRole = currentUser.role ? currentUser.role.trim().toLowerCase() : "user";
-        
+        var hasData = false; var myBr = currentUser.branch ? currentUser.branch.trim().toLowerCase() : ""; var myRole = currentUser.role ? currentUser.role.trim().toLowerCase() : "user";
         data.forEach(row => {
-          if(row[0] === "Error") {
-             tbody.innerHTML += `<tr><td colspan='7' style='color:red; text-align:center;'><b>System Error:</b> ${row[1]}</td></tr>`;
-             hasData = true;
-             return;
-          }
-
-          var fromBr = row[3] ? String(row[3]).trim().toLowerCase() : "";
-          var toBr = row[4] ? String(row[4]).trim().toLowerCase() : "";
-          
+          if(row[0] === "Error") { tbody.innerHTML += `<tr><td colspan='7' style='color:red; text-align:center;'><b>System Error:</b> ${row[1]}</td></tr>`; hasData = true; return; }
+          var fromBr = row[3] ? String(row[3]).trim().toLowerCase() : ""; var toBr = row[4] ? String(row[4]).trim().toLowerCase() : "";
           if(myRole === 'super admin' || myBr === fromBr || myBr === toBr) {
-            hasData = true;
-            var status = row[7] ? String(row[7]).trim() : "Pending";
+            hasData = true; var status = row[7] ? String(row[7]).trim() : "Pending";
             var badge = status.toLowerCase() === 'pending' ? '<span class="badge-pending">Pending</span>' : '<span class="badge-accepted">Delivered</span>';
-            
-            var btn = (status.toLowerCase() === 'pending' && (myBr === toBr || myRole === 'super admin')) ? 
-              `<button onclick="receiveCourier('${row[1]}')" style="background:#198754;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">Mark Received</button>` : "-";
-            
+            var btn = (status.toLowerCase() === 'pending' && (myBr === toBr || myRole === 'super admin')) ? `<button onclick="receiveCourier('${row[1]}')" style="background:#198754;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;">Mark Received</button>` : "-";
             tbody.innerHTML += `<tr><td>${row[0]}</td><td><b>${row[1]}</b></td><td>${row[2]}</td><td>${row[3]} ➔ ${row[4]}</td><td>${row[5]}</td><td>${badge}</td><td>${btn}</td></tr>`;
           }
         });
-        
         if(!hasData) { tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No Couriers Found for your branch.</td></tr>"; }
       } catch(e) { tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;color:red;'>Error Loading Data</td></tr>"; }
     }
@@ -1237,84 +1147,41 @@
         });
     }
 
-    // ====== UTILITY FUNCTIONS ======
-    
     function previewImage(input) {
-      var box = input.parentElement;
-      var file = input.files[0];
-      var clearBtn = box.querySelector('.clear-btn');
-      if (file) {
-        if(file.type === 'application/pdf') {
-          box.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg')";
-        } else {
-          var reader = new FileReader();
-          reader.onload = e => box.style.backgroundImage = `url('${e.target.result}')`;
-          reader.readAsDataURL(file);
-        }
-        if(clearBtn) clearBtn.style.display = 'block';
-      }
+      var box = input.parentElement; var file = input.files[0]; var clearBtn = box.querySelector('.clear-btn');
+      if (file) { if(file.type === 'application/pdf') { box.style.backgroundImage = "url('https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg')"; } else { var reader = new FileReader(); reader.onload = e => box.style.backgroundImage = `url('${e.target.result}')`; reader.readAsDataURL(file); } if(clearBtn) clearBtn.style.display = 'block'; }
     }
 
-    function clearImage(btn) {
-      var box = btn.parentElement;
-      var input = box.querySelector('input[type="file"]');
-      input.value = "";
-      box.style.backgroundImage = "none";
-      btn.style.display = 'none';
-    }
-
+    function clearImage(btn) { var box = btn.parentElement; var input = box.querySelector('input[type="file"]'); input.value = ""; box.style.backgroundImage = "none"; btn.style.display = 'none'; }
     function extractCRData() { Swal.fire("Info", "Auto-Fill with AI is under development.", "info"); }
 
     function compressImage(file, maxWidth, quality) {
       return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
+        const reader = new FileReader(); reader.readAsDataURL(file);
         reader.onload = event => {
-          const img = new Image();
-          img.src = event.target.result;
+          const img = new Image(); img.src = event.target.result;
           img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width; let height = img.height;
+            const canvas = document.createElement('canvas'); let width = img.width; let height = img.height;
             if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
-            canvas.width = width; canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            const dataUrl = canvas.toDataURL('image/jpeg', quality);
-            resolve({ data: dataUrl.split(',')[1], type: 'image/jpeg', name: file.name });
+            canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', quality); resolve({ data: dataUrl.split(',')[1], type: 'image/jpeg', name: file.name });
           };
         };
         reader.onerror = error => reject(error);
       });
     }
 
-    // ====== VALUATION PORTAL FUNCTIONS ======
-
     async function loadPendingValuations() {
-      var container = document.getElementById("admin-req-list");
-      if(!container) return;
+      var container = document.getElementById("admin-req-list"); if(!container) return;
       container.innerHTML = "<div style='text-align:center; padding:20px;'>Loading pending requests...</div>";
-      
-      function getImgUrl(url) {
-         if (!url || url === 'No Image') return '';
-         var m = url.match(/[-\w]{25,}/);
-         return m ? `https://lh3.googleusercontent.com/d/${m[0]}` : url;
-      }
-
       try {
         const res = await apiCall('getPendingValuations', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
-        const data = res.data;
-        container.innerHTML = "";
-        if(!data || data.length === 0) {
-          container.innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>No pending valuations found.</div>";
-          return;
-        }
+        const data = res.data; container.innerHTML = "";
+        if(!data || data.length === 0) { container.innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>No pending valuations found.</div>"; return; }
         
         var isAdmin = String(currentUser.role || "").toLowerCase().includes('admin') || String(currentUser.role || "").toLowerCase().includes('approval');
-
         data.forEach(req => {
-          var imgHtml = '';
-          var errImg = "this.onerror=null; this.src='https://placehold.co/250x180?text=Image+Error';";
-          
+          var imgHtml = ''; var errImg = "this.onerror=null; this.src='https://placehold.co/250x180?text=Image+Error';";
           if(req.imgFront !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgFront)}')"><img src="${getImgUrl(req.imgFront)}" onerror="${errImg}"><div class="admin-photo-label">Front View</div></div>`;
           if(req.imgBack !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgBack)}')"><img src="${getImgUrl(req.imgBack)}" onerror="${errImg}"><div class="admin-photo-label">Back View</div></div>`;
           if(req.imgCr !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgCr)}')"><img src="${getImgUrl(req.imgCr)}" onerror="${errImg}"><div class="admin-photo-label">CR Copy</div></div>`;
@@ -1328,208 +1195,93 @@
 
           var actionHtml = '';
           if (isAdmin) {
-             actionHtml = `<div class="admin-valuation-form">
-              <h4 style="margin-bottom:15px; color:#c62828;">Inspector Assessment</h4>
-              <div class="admin-input-row">
-                <div><label>Market Value (LKR)</label><input type="number" id="mVal_${req.row}" class="admin-input" value="${req.defaultMarket || ''}"></div>
-                <div><label>Forced Sale Value (LKR)</label><input type="number" id="sVal_${req.row}" class="admin-input" value="${req.defaultSale || ''}"></div>
-              </div>
-              <label>Remarks</label>
-              <input type="text" id="rem_${req.row}" class="admin-input" placeholder="Add any comments...">
-              <div style="display:flex; gap:10px; margin-top:10px;">
-                <button onclick="processValuation(${req.row}, 'Approved')" style="flex:1; background:#198754; color:white; padding:12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Approve & Generate PDF</button>
-                <button onclick="processValuation(${req.row}, 'Rejected')" style="flex:1; background:#dc3545; color:white; padding:12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Reject Request</button>
-              </div>
-            </div>`;
-          } else {
-             actionHtml = '<div style="background:#fff3cd; padding:15px; border-radius:5px; text-align:center; font-weight:bold; color:#856404; border:1px solid #ffeeba; margin-top:15px;">Status: Pending Admin Approval ⏳</div>';
-          }
+             actionHtml = `<div class="admin-valuation-form"><h4 style="margin-bottom:15px; color:#c62828;">Inspector Assessment</h4><div class="admin-input-row"><div><label>Market Value (LKR)</label><input type="number" id="mVal_${req.row}" class="admin-input" value="${req.defaultMarket || ''}"></div><div><label>Forced Sale Value (LKR)</label><input type="number" id="sVal_${req.row}" class="admin-input" value="${req.defaultSale || ''}"></div></div><label>Remarks</label><input type="text" id="rem_${req.row}" class="admin-input" placeholder="Add any comments..."><div style="display:flex; gap:10px; margin-top:10px;"><button onclick="processValuation(${req.row}, 'Approved')" style="flex:1; background:#198754; color:white; padding:12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Approve & Generate PDF</button><button onclick="processValuation(${req.row}, 'Rejected')" style="flex:1; background:#dc3545; color:white; padding:12px; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">Reject Request</button></div></div>`;
+          } else { actionHtml = '<div style="background:#fff3cd; padding:15px; border-radius:5px; text-align:center; font-weight:bold; color:#856404; border:1px solid #ffeeba; margin-top:15px;">Status: Pending Admin Approval ⏳</div>'; }
 
-          var card = `<div class="admin-req-card">
-            <div class="info-grid">
-              <div class="info-box"><strong>Vehicle No</strong><span>${req.vehNo}</span></div>
-              <div class="info-box"><strong>Make & Model</strong><span>${req.make} ${req.model}</span></div>
-              <div class="info-box"><strong>YOM</strong><span>${req.yom}</span></div>
-              <div class="info-box"><strong>Requested By</strong><span>${req.reqName} (${req.reqBranch})</span></div>
-              <div class="info-box"><strong>Req Amount</strong><span>Rs. ${req.reqAmount}</span></div>
-              <div class="info-box"><strong>Chassis No</strong><span>${req.chassisNo}</span></div>
-            </div>
-            <div class="admin-photo-grid">${imgHtml}</div>
-            ${actionHtml}
-          </div>`;
-          
+          var card = `<div class="admin-req-card"><div class="info-grid"><div class="info-box"><strong>Vehicle No</strong><span>${req.vehNo}</span></div><div class="info-box"><strong>Make & Model</strong><span>${req.make} ${req.model}</span></div><div class="info-box"><strong>YOM</strong><span>${req.yom}</span></div><div class="info-box"><strong>Requested By</strong><span>${req.reqName} (${req.reqBranch})</span></div><div class="info-box"><strong>Req Amount</strong><span>Rs. ${req.reqAmount}</span></div><div class="info-box"><strong>Chassis No</strong><span>${req.chassisNo}</span></div></div><div class="admin-photo-grid">${imgHtml}</div>${actionHtml}</div>`;
           container.innerHTML += card;
         });
       } catch(e) { container.innerHTML = "<div style='color:red;'>Error Loading Valuations</div>"; }
     }
 
     async function processValuation(row, status) {
-      var mVal = document.getElementById(`mVal_${row}`).value;
-      var sVal = document.getElementById(`sVal_${row}`).value;
-      var rem = document.getElementById(`rem_${row}`).value;
-      
-      if(status === 'Approved' && (!mVal || !sVal)) {
-        Swal.fire("Required", "Please enter Market and Sale values to approve!", "warning");
-        return;
-      }
-      
+      var mVal = document.getElementById(`mVal_${row}`).value; var sVal = document.getElementById(`sVal_${row}`).value; var rem = document.getElementById(`rem_${row}`).value;
+      if(status === 'Approved' && (!mVal || !sVal)) { Swal.fire("Required", "Please enter Market and Sale values to approve!", "warning"); return; }
       Swal.fire({title: 'Processing...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
       try {
         const res = await apiCall('approveValuationRequest', { row: row, marketValue: mVal, saleValue: sVal, adminRemarks: rem, status: status });
-        if(res.success) { 
-          Swal.fire("Success", res.result, "success"); 
-          loadPendingValuations(); loadDashboardStats(); 
-        } else { Swal.fire("Error", res.error || "Failed", "error"); }
+        if(res.success) { Swal.fire("Success", res.result, "success"); loadPendingValuations(); loadDashboardStats(); } 
+        else { Swal.fire("Error", res.error || "Failed", "error"); }
       } catch(e) { Swal.fire("Error", "Server Error", "error"); }
     }
 
     async function loadValuationHistory() {
-      var tbody = document.getElementById("valHistoryBody");
-      if(!tbody) return;
+      var tbody = document.getElementById("valHistoryBody"); if(!tbody) return;
       tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading...</td></tr>";
-      
       try {
         const res = await apiCall('getValuationSummary', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
-        const data = res.data;
-        tbody.innerHTML = "";
-        if(!data || data.length === 0) {
-          tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No History Found</td></tr>";
-          return;
-        }
-        data.forEach(row => {
-          var statusBadge = row.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : (row.status.toLowerCase() === 'rejected' ? '<span class="badge-rejected">Rejected</span>' : '<span class="badge-pending">Pending</span>');
-          var pdfLink = row.pdf ? `<a href="${row.pdf}" target="_blank" style="background:#0d6efd; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px;">View PDF</a>` : "-";
-          tbody.innerHTML += `<tr><td>${row.date}</td><td><b>${row.reqName}</b><br><small style="color:#777;">${row.branch}</small></td><td><b>${row.vehNo}</b></td><td>${row.makeModel}</td><td>${statusBadge}</td><td>${pdfLink}</td></tr>`;
+        const data = res.data; tbody.innerHTML = "";
+        globalHistoryValData = data; // Save globally for the popup
+        
+        if(!data || data.length === 0) { tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No History Found</td></tr>"; return; }
+        data.forEach((row, idx) => {
+          var statusBadge = row.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : (row.status.toLowerCase() === 'rejected' ? '<span class="badge-rejected">Rejected</span>' : '<span class="badge-pending">Pending Approval</span>');
+          var viewBtn = `<button onclick="openValViewModal(${idx}, 'history')" style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px; font-size:13px;">View</button>`;
+          var pdfLink = row.pdf ? `<a href="${row.pdf}" target="_blank" style="background:#0d6efd; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:13px; font-weight:bold; display:inline-block;">PDF</a>` : "";
+          tbody.innerHTML += `<tr><td>${row.date}</td><td><b>${row.reqName}</b><br><small style="color:#777;">${row.branch}</small></td><td><b>${row.vehNo}</b></td><td>${row.makeModel}</td><td>${statusBadge}</td><td>${viewBtn}${pdfLink}</td></tr>`;
         });
       } catch(e) { tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;color:red;'>Error Loading History</td></tr>"; }
     }
 
     // Filters...
     function filterValHistoryTable() {
-      var fDate = document.getElementById("valFromDate").value;
-      var tDate = document.getElementById("valToDate").value;
-      var search = document.getElementById("valSearch").value.toLowerCase();
-      var tr = document.getElementById("valHistoryTable").getElementsByTagName("tr");
-      
+      var fDate = document.getElementById("valFromDate").value; var tDate = document.getElementById("valToDate").value; var search = document.getElementById("valSearch").value.toLowerCase(); var tr = document.getElementById("valHistoryTable").getElementsByTagName("tr");
       for (var i = 1; i < tr.length; i++) {
-        var tdDate = tr[i].getElementsByTagName("td")[0];
-        var tdVeh = tr[i].getElementsByTagName("td")[2];
-        
+        var tdDate = tr[i].getElementsByTagName("td")[0]; var tdVeh = tr[i].getElementsByTagName("td")[2];
         if (tdDate && tdVeh) {
-          var rowDateStr = tdDate.textContent || tdDate.innerText;
-          var rowDate = new Date(rowDateStr); 
-          var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1;
-          var matchDate = true;
-          
+          var rowDateStr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDateStr); var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1; var matchDate = true;
           if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
-          if (tDate) {
-            var toDateObj = new Date(tDate);
-            toDateObj.setHours(23, 59, 59, 999); 
-            if (rowDate > toDateObj) matchDate = false;
-          }
-          
+          if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
           tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
         }
       }
     }
 
-    function clearValFilters() {
-      document.getElementById("valFromDate").value = "";
-      document.getElementById("valToDate").value = "";
-      document.getElementById("valSearch").value = "";
-      filterValHistoryTable();
-    }
+    function clearValFilters() { document.getElementById("valFromDate").value = ""; document.getElementById("valToDate").value = ""; document.getElementById("valSearch").value = ""; filterValHistoryTable(); }
 
     function filterDashboardTables() {
-        var fDate = document.getElementById("dashFromDate").value;
-        var tDate = document.getElementById("dashToDate").value;
-        var search = document.getElementById("dashSearch").value.toLowerCase();
-
-        var tables = [
-            {id: "dashMasterTable", dateCol: 4, searchCols: [0, 3]}, 
-            {id: "dashRmvTable", dateCol: 0, searchCols: [1, 2]},    
-            {id: "dashValTable", dateCol: 0, searchCols: [1]}        
-        ];
-
+        var fDate = document.getElementById("dashFromDate").value; var tDate = document.getElementById("dashToDate").value; var search = document.getElementById("dashSearch").value.toLowerCase();
+        var tables = [ {id: "dashMasterTable", dateCol: 4, searchCols: [0, 3]}, {id: "dashRmvTable", dateCol: 0, searchCols: [1, 2]}, {id: "dashValTable", dateCol: 0, searchCols: [1]} ];
         tables.forEach(tbl => {
-            var tbody = document.querySelector("#" + tbl.id + " tbody");
-            if(!tbody) return;
-            var tr = tbody.getElementsByTagName("tr");
-            
+            var tbody = document.querySelector("#" + tbl.id + " tbody"); if(!tbody) return; var tr = tbody.getElementsByTagName("tr");
             for (var i = 0; i < tr.length; i++) {
                 var tds = tr[i].getElementsByTagName("td");
                 if (tds.length > 1) { 
-                    var rowDateStr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText;
-                    var rowDate = new Date(rowDateStr.split(" ")[0]); 
-                    
-                    var matchSearch = false;
-                    tbl.searchCols.forEach(colIdx => {
-                        if (tds[colIdx] && tds[colIdx].innerText.toLowerCase().indexOf(search) > -1) {
-                            matchSearch = true;
-                        }
-                    });
-                    
-                    var matchDate = true;
-                    if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
-                    if (tDate) { 
-                        var toDateObj = new Date(tDate);
-                        toDateObj.setHours(23, 59, 59, 999);
-                        if (rowDate > toDateObj) matchDate = false; 
-                    }
-                    
+                    var rowDateStr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDateStr.split(" ")[0]); var matchSearch = false;
+                    tbl.searchCols.forEach(colIdx => { if (tds[colIdx] && tds[colIdx].innerText.toLowerCase().indexOf(search) > -1) { matchSearch = true; } });
+                    var matchDate = true; if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
                     tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
                 }
             }
         });
     }
     
-    function clearDashFilters() {
-        document.getElementById("dashFromDate").value = "";
-        document.getElementById("dashToDate").value = "";
-        document.getElementById("dashSearch").value = "";
-        filterDashboardTables();
-    }
+    function clearDashFilters() { document.getElementById("dashFromDate").value = ""; document.getElementById("dashToDate").value = ""; document.getElementById("dashSearch").value = ""; filterDashboardTables(); }
 
     function filterCourierTable() {
-        var fDate = document.getElementById("courierFromDate").value;
-        var tDate = document.getElementById("courierToDate").value;
-        var search = document.getElementById("courierSearch").value.toLowerCase();
-        var status = document.getElementById("courierStatusFilter").value.toLowerCase();
-        var tr = document.getElementById("parcelTable").getElementsByTagName("tr");
-        
+        var fDate = document.getElementById("courierFromDate").value; var tDate = document.getElementById("courierToDate").value; var search = document.getElementById("courierSearch").value.toLowerCase(); var status = document.getElementById("courierStatusFilter").value.toLowerCase(); var tr = document.getElementById("parcelTable").getElementsByTagName("tr");
         for (var i = 1; i < tr.length; i++) {
-            var tdDate = tr[i].getElementsByTagName("td")[0];
-            var tdId = tr[i].getElementsByTagName("td")[1];
-            var tdVeh = tr[i].getElementsByTagName("td")[4];
-            var tdStatus = tr[i].getElementsByTagName("td")[5];
-            
+            var tdDate = tr[i].getElementsByTagName("td")[0]; var tdId = tr[i].getElementsByTagName("td")[1]; var tdVeh = tr[i].getElementsByTagName("td")[4]; var tdStatus = tr[i].getElementsByTagName("td")[5];
             if (tdDate && tdId && tdVeh && tdStatus) {
-                var rowDateStr = tdDate.textContent || tdDate.innerText;
-                var rowDate = new Date(rowDateStr.split(" ")[0]);
-                
+                var rowDateStr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDateStr.split(" ")[0]);
                 var matchSearch = (tdId.innerText.toLowerCase().indexOf(search) > -1) || (tdVeh.innerText.toLowerCase().indexOf(search) > -1);
-                var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1);
-                var matchDate = true;
-                
-                if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
-                if (tDate) { 
-                    var toDateObj = new Date(tDate);
-                    toDateObj.setHours(23, 59, 59, 999);
-                    if (rowDate > toDateObj) matchDate = false; 
-                }
-                
+                var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1); var matchDate = true;
+                if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
                 tr[i].style.display = (matchSearch && matchStatus && matchDate) ? "" : "none";
             }
         }
     }
-    
-    function clearCourierFilters() {
-        document.getElementById("courierFromDate").value = "";
-        document.getElementById("courierToDate").value = "";
-        document.getElementById("courierSearch").value = "";
-        document.getElementById("courierStatusFilter").value = "";
-        filterCourierTable();
-    }
+    function clearCourierFilters() { document.getElementById("courierFromDate").value = ""; document.getElementById("courierToDate").value = ""; document.getElementById("courierSearch").value = ""; document.getElementById("courierStatusFilter").value = ""; filterCourierTable(); }
   </script>
 </body>
 </html>
