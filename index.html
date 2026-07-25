@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Crown Portal</title>
+  <title>Trade Portal</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -120,7 +120,7 @@
     <header class="top-header">
       <div class="brand" style="display: flex; align-items: center; gap: 15px; font-weight: bold;">
         <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor: pointer; font-size: 20px; color: var(--accent-red-light);"></i>
-        Crown Portal
+        Trade Portal
       </div>
       <div class="header-right">
         <div class="user-profile">
@@ -436,9 +436,9 @@
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Engine Bay *</label><input type="file" name="img_engine" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Meter *</label><input type="file" name="img_meter" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Inspection Sheet *</label><input type="file" name="img_sheet" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>. Officer View</label><input type="file" name="img_." accept="image/*,application/pdf" onchange="previewImage(this)"required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Office View*</label><input type="file" name="img_inside" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Tyre Condition</label><input type="file" name="img_tyre" accept="image/*,application/pdf" onchange="previewImage(this)"></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View</label><input type="file" name="img_customer" accept="image/*,application/pdf" onchange="previewImage(this)"required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View*</label><input type="file" name="img_customer" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
               </div>
               <button type="submit" id="valSubmitBtn" class="btn-submit">Submit Valuation Request</button>
             </form>
@@ -630,7 +630,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbyCUO3qkrFtMySx4ZWa_Fl6ZRTKSxRZupOPd0xeNdQlOCJ1XhjIn-tWy_8gP66VFN12Ww/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbx2EGrllW-HvYXr-YSXOBhLckpS5Q-tHrFp2pU28Rv6gmcn2cQv_Z4xrMj0DrZHjZ1vNA/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -664,7 +664,7 @@
 
     window.onload = function() {
       try {
-        var savedUser = localStorage.getItem('CrownAppUser');
+        var savedUser = localStorage.getItem('TradeAppUser');
         if(savedUser) { 
           var parsedUser = JSON.parse(savedUser); 
           if(parsedUser && parsedUser.user) {
@@ -722,7 +722,7 @@
     }
 
     function proceedToDashboard(userData) {
-      localStorage.setItem('CrownAppUser', JSON.stringify(userData)); currentUser = userData;
+      localStorage.setItem('TradeAppUser', JSON.stringify(userData)); currentUser = userData;
       document.getElementById('login-container').style.display = 'none'; document.getElementById('app-container').style.display = 'flex';
       setupDashboardPostLogin(currentUser);
     }
@@ -1003,7 +1003,7 @@
         addPhoto(d.imgEngine, "Engine Bay");
         addPhoto(d.imgMeter, "Meter");
         addPhoto(d.imgSheet, "Inspection Sheet");
-        addPhoto(d.img., "Officer View");
+        addPhoto(d.imgInside, "Office View");
         addPhoto(d.imgTyre, "Tyres");
         addPhoto(d.imgCustomer, "Customer View");
 
@@ -1043,7 +1043,7 @@
       for (var i = 1; i < tr.length; i++) {
         var tdDate = tr[i].getElementsByTagName("td")[0]; var tdId = tr[i].getElementsByTagName("td")[1]; var tdVeh = tr[i].getElementsByTagName("td")[2]; var tdStatus = tr[i].getElementsByTagName("td")[5]; 
         if (tdDate && tdId && tdVeh && tdStatus) {
-          var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]);
+          var rowDaTrader = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaTrader.split(" ")[0]);
           var matchSearch = (tdId.innerText.toLowerCase().indexOf(input) > -1) || (tdVeh.innerText.toLowerCase().indexOf(input) > -1);
           var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1);
           var matchDate = true;
@@ -1157,7 +1157,7 @@
     }
 
     function logout() { 
-      try { localStorage.removeItem('CrownAppUser'); } catch(e){}
+      try { localStorage.removeItem('TradeAppUser'); } catch(e){}
       currentUser = {}; document.getElementById('app-container').style.display = 'none'; document.getElementById('login-container').style.display = 'flex'; document.getElementById('username').value = ""; document.getElementById('password').value = "";
     }
 
@@ -1405,7 +1405,7 @@
           if(req.imgEngine !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgEngine)}')"><img src="${getImgUrl(req.imgEngine)}" onerror="${errImg}"><div class="admin-photo-label">Engine</div></div>`;
           if(req.imgMeter !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgMeter)}')"><img src="${getImgUrl(req.imgMeter)}" onerror="${errImg}"><div class="admin-photo-label">Meter</div></div>`;
           if(req.imgSheet !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgSheet)}')"><img src="${getImgUrl(req.imgSheet)}" onerror="${errImg}"><div class="admin-photo-label">Inspection Sheet</div></div>`;
-          if(req.img. !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.img.)}')"><img src="${getImgUrl(req.img.)}" onerror="${errImg}"><div class="admin-photo-label">. Officer View</div></div>`;
+          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Office View</div></div>`;
           if(req.imgTyre !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgTyre)}')"><img src="${getImgUrl(req.imgTyre)}" onerror="${errImg}"><div class="admin-photo-label">Tyre Condition</div></div>`;
           if(req.imgCustomer !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgCustomer)}')"><img src="${getImgUrl(req.imgCustomer)}" onerror="${errImg}"><div class="admin-photo-label">Customer View</div></div>`;
 
@@ -1455,7 +1455,7 @@
       for (var i = 1; i < tr.length; i++) {
         var tdDate = tr[i].getElementsByTagName("td")[0]; var tdVeh = tr[i].getElementsByTagName("td")[2];
         if (tdDate && tdVeh) {
-          var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr); var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1; var matchDate = true;
+          var rowDaTrader = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaTrader); var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1; var matchDate = true;
           if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
           if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
           tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
@@ -1473,7 +1473,7 @@
             for (var i = 0; i < tr.length; i++) {
                 var tds = tr[i].getElementsByTagName("td");
                 if (tds.length > 1) { 
-                    var rowDaCrownr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]); var matchSearch = false;
+                    var rowDaTrader = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDaTrader.split(" ")[0]); var matchSearch = false;
                     tbl.searchCols.forEach(colIdx => { if (tds[colIdx] && tds[colIdx].innerText.toLowerCase().indexOf(search) > -1) { matchSearch = true; } });
                     var matchDate = true; if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
                     tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
@@ -1489,7 +1489,7 @@
         for (var i = 1; i < tr.length; i++) {
             var tdDate = tr[i].getElementsByTagName("td")[0]; var tdId = tr[i].getElementsByTagName("td")[1]; var tdVeh = tr[i].getElementsByTagName("td")[4]; var tdStatus = tr[i].getElementsByTagName("td")[5];
             if (tdDate && tdId && tdVeh && tdStatus) {
-                var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]);
+                var rowDaTrader = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaTrader.split(" ")[0]);
                 var matchSearch = (tdId.innerText.toLowerCase().indexOf(search) > -1) || (tdVeh.innerText.toLowerCase().indexOf(search) > -1);
                 var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1); var matchDate = true;
                 if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
