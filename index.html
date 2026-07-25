@@ -8,6 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
   <style>
     :root { --bg-dark:#121212; --sidebar-dark:#1a1a1a; --accent-red:#c62828; --accent-red-light:#e53935; --text-light:#ffffff; --text-muted:#9e9e9e; --bg-light:#f5f6fa; --card-bg:#ffffff; --border-color:#e0e0e0; }
@@ -170,6 +171,22 @@
           <div class="menu-item" data-icon="fas fa-users-cog" onclick="switchView('user-mgt', this)"><i class="fas fa-users-cog"></i> User Maintenance</div>
           <div class="menu-item" data-icon="fas fa-map-marked-alt" onclick="switchView('live-map', this)"><i class="fas fa-map-marked-alt"></i> Live Request Map</div>
         </div>
+        
+        <!-- CR UPLOAD OPTION -->
+        <div class="menu-category" id="cr-menu-category" onclick="toggleSubMenu('cr-submenu', this)">
+          <span><i class="fas fa-file-upload" style="margin-right: 8px;"></i> CR Upload Option</span> <i class="fas fa-chevron-down arrow"></i>
+        </div>
+        <div class="sub-menu" id="cr-submenu">
+          <div class="menu-item" id="menu-cr-new" data-icon="fas fa-cloud-upload-alt" onclick="switchView('cr-upload-new', this)">
+            <i class="fas fa-cloud-upload-alt"></i> New CR Upload
+          </div>
+          <div class="menu-item" id="menu-cr-pending" data-icon="fas fa-clock" onclick="switchView('cr-upload-pending', this)">
+            <i class="fas fa-clock"></i> Pending Uploads
+          </div>
+          <div class="menu-item" id="menu-cr-history" data-icon="fas fa-list-alt" onclick="switchView('cr-upload-history', this)">
+            <i class="fas fa-list-alt"></i> Upload History
+          </div>
+        </div>
       </nav>
 
       <main class="content-area">
@@ -260,9 +277,18 @@
             </div>
           </div>
           
+          <!-- CR UPLOAD DASHBOARD SUMMARY -->
+          <div id="dash-cr-section" style="margin-top: 30px;">
+            <h3 class="section-title">Final CR Upload Overview</h3>
+            <div class="admin-cards">
+              <div class="a-card bg-yellow"><h3>Pending Uploads</h3><div class="a-val" id="dash-cru-pen">0</div></div>
+              <div class="a-card bg-green"><h3>Completed Uploads</h3><div class="a-val" id="dash-cru-com">0</div></div>
+            </div>
+          </div>
         </div> 
+        <!-- Dashboard Section End -->
         
-        <!-- OTHER VIEWS (Unchanged layout) -->
+        <!-- OTHER VIEWS -->
         <div id="view-user-mgt" class="view-section" style="display: none;">
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom:20px;">System Admin Overview (User Maintenance)</h2>
           <div class="admin-forms-grid">
@@ -410,9 +436,9 @@
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Engine Bay *</label><input type="file" name="img_engine" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Meter *</label><input type="file" name="img_meter" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Inspection Sheet *</label><input type="file" name="img_sheet" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Inside Interior</label><input type="file" name="img_inside" accept="image/*,application/pdf" onchange="previewImage(this)"></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>. Officer View</label><input type="file" name="img_." accept="image/*,application/pdf" onchange="previewImage(this)"required></div>
                 <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Tyre Condition</label><input type="file" name="img_tyre" accept="image/*,application/pdf" onchange="previewImage(this)"></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View</label><input type="file" name="img_customer" accept="image/*,application/pdf" onchange="previewImage(this)"></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View</label><input type="file" name="img_customer" accept="image/*,application/pdf" onchange="previewImage(this)"required></div>
               </div>
               <button type="submit" id="valSubmitBtn" class="btn-submit">Submit Valuation Request</button>
             </form>
@@ -459,6 +485,64 @@
           </div>
           <div style="background:#fff; padding:20px; border:1px solid #ddd; border-top:none; border-radius:0 0 5px 5px;">
              <div id="map" style="width: 100%; height: 65vh; border-radius: 8px; border: 2px solid #ccc; z-index: 1;"></div>
+          </div>
+        </div>
+        
+        <!-- CR UPLOAD VIEWS -->
+        <div id="view-cr-upload-new" class="view-section" style="display: none;">
+          <div class="form-box" style="max-width: 800px; margin: 0 auto;">
+            <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
+              <i class="fas fa-cloud-upload-alt"></i> Upload Final CR (Approved Valuations)
+            </h2>
+            
+            <label style="color: #0d6efd;">🔍 Search by Vehicle Number or Reference No</label>
+            <input type="text" id="cr_search_input" list="pending_cr_list" class="admin-input" placeholder="Type Vehicle No... (e.g., WP CAB-1234)" onchange="loadCRDetails()">
+            <datalist id="pending_cr_list"></datalist>
+
+            <!-- Details Section -->
+            <div id="cr_details_box" style="display:none; background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:20px;">
+              <h4 style="margin-top:0; color:#333; margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:5px;">Valuation Details</h4>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                <div><label>Reference No:</label> <strong id="lbl_cr_ref" style="color:#c62828;"></strong></div>
+                <div><label>Vehicle No:</label> <strong id="lbl_cr_veh"></strong></div>
+                <div><label>Make & Model:</label> <strong id="lbl_cr_make"></strong></div>
+                <div><label>Approved Date:</label> <strong id="lbl_cr_appdate"></strong></div>
+                <div><label>Request Branch:</label> <strong id="lbl_cr_branch"></strong></div>
+                <div><label>Request User:</label> <strong id="lbl_cr_user"></strong></div>
+              </div>
+              <input type="hidden" id="cr_row_index">
+            </div>
+
+            <!-- Upload Section -->
+            <div id="cr_upload_section" style="display:none;">
+              <label>Upload Final CR Document (PDF or Image) *</label>
+              <input type="file" id="final_cr_file" accept=".pdf, image/*" class="admin-input">
+              <button class="btn-submit" id="crSubmitBtn" onclick="submitFinalCR()">Upload & Save CR</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="view-cr-upload-pending" class="view-section" style="display: none;">
+          <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">Pending CR Uploads</h2>
+          <button onclick="loadPendingCRTable()" style="padding: 8px 15px; background: #f39c12; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh List</button>
+          
+          <div class="table-container">
+            <table id="crPendingTable" class="blue-header">
+              <thead><tr><th>Valuation Date</th><th>Vehicle No</th><th>Branch</th><th>Request User</th><th>Days in Pending</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="view-cr-upload-history" class="view-section" style="display: none;">
+          <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">CR Upload History & Summary</h2>
+          <button onclick="loadCRHistory()" style="padding: 8px 15px; background: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh Report</button>
+          
+          <div class="table-container">
+            <table id="crHistoryTable" class="blue-header">
+              <thead><tr><th>Uploaded Date</th><th>Ref No</th><th>Vehicle No</th><th>Make & Model</th><th>Uploaded By</th><th>CR Document</th></tr></thead>
+              <tbody></tbody>
+            </table>
           </div>
         </div>
       </main>
@@ -546,7 +630,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbxhSwnUlTJJQmSJDyznPOPSScR2cprKkx7Fv19OuqO9H2oi_RexTIN41dneOWc40tHmWQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbyCUO3qkrFtMySx4ZWa_Fl6ZRTKSxRZupOPd0xeNdQlOCJ1XhjIn-tWy_8gP66VFN12Ww/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -697,6 +781,27 @@
             if(valMenu) valMenu.style.display = 'none';
             if(rmvAdminBtn) rmvAdminBtn.style.display = 'flex'; if(courierAdminBtn) courierAdminBtn.style.display = 'flex';
             if(dashVal) dashVal.style.display = 'none';
+        }
+
+        var crMenuCategory = document.getElementById('cr-menu-category');
+        var crNewBtn = document.getElementById('menu-cr-new');
+        
+        var roleLower = uRole.toLowerCase();
+        var branchLower = uBranch.toLowerCase();
+
+        // 03. RMV / Valuation Admins ලගෙන් සම්පූර්ණයෙන්ම ගැලවීම
+        if (roleLower.includes('rmv') || roleLower.includes('valuation admin') || roleLower.includes('valuation approval')) {
+             if(crMenuCategory) crMenuCategory.style.display = 'none';
+        }
+        // 01. Head Office Users (සම්පූර්ණ Menu එක සහ Upload Option එක පේනවා)
+        else if (roleLower === 'super admin' || roleLower === 'admin' || roleLower === 'head office' || branchLower === 'head office') {
+             if(crMenuCategory) crMenuCategory.style.display = 'flex';
+             if(crNewBtn) crNewBtn.style.display = 'flex'; 
+        }
+        // 02. Branch Users (Upload Option එක Hide කරලා අනිත්වා පෙන්වීම)
+        else {
+             if(crMenuCategory) crMenuCategory.style.display = 'flex';
+             if(crNewBtn) crNewBtn.style.display = 'none'; 
         }
 
         var valForm = document.getElementById('vForm');
@@ -852,6 +957,11 @@
               vTbody.innerHTML += `<tr><td>${r.date}</td><td><b>${r.vehNo}</b></td><td>${r.makeModel}</td><td>${r.marketVal}</td><td>${r.saleVal}</td><td>${badge}</td><td>${viewBtn}${pdfBtn}</td></tr>`;
             });
         }
+
+        // Updated CR Upload Summary Stats
+        if(document.getElementById('dash-cru-pen') && data.crupload) document.getElementById('dash-cru-pen').innerText = data.crupload.pending;
+        if(document.getElementById('dash-cru-com') && data.crupload) document.getElementById('dash-cru-com').innerText = data.crupload.completed;
+
       } catch(e) { console.error(e); }
     }
 
@@ -893,7 +1003,7 @@
         addPhoto(d.imgEngine, "Engine Bay");
         addPhoto(d.imgMeter, "Meter");
         addPhoto(d.imgSheet, "Inspection Sheet");
-        addPhoto(d.imgInside, "Interior");
+        addPhoto(d.img., "Officer View");
         addPhoto(d.imgTyre, "Tyres");
         addPhoto(d.imgCustomer, "Customer View");
 
@@ -933,7 +1043,7 @@
       for (var i = 1; i < tr.length; i++) {
         var tdDate = tr[i].getElementsByTagName("td")[0]; var tdId = tr[i].getElementsByTagName("td")[1]; var tdVeh = tr[i].getElementsByTagName("td")[2]; var tdStatus = tr[i].getElementsByTagName("td")[5]; 
         if (tdDate && tdId && tdVeh && tdStatus) {
-          var rowDateStr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDateStr.split(" ")[0]);
+          var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]);
           var matchSearch = (tdId.innerText.toLowerCase().indexOf(input) > -1) || (tdVeh.innerText.toLowerCase().indexOf(input) > -1);
           var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1);
           var matchDate = true;
@@ -1066,6 +1176,10 @@
       if(viewId === 'val-admin') { loadPendingValuations(); }
       if(viewId === 'val-history') { loadValuationHistory(); }
       if(viewId === 'live-map') { setTimeout(() => { if(typeof initMap === 'function') initMap(); else { if(rmvMap) rmvMap.invalidateSize(); loadMapData(); } }, 300); }
+      // Added integration for CR Upload sections here
+      if(viewId === 'cr-upload-new') { loadPendingCRList(); }
+      if(viewId === 'cr-upload-history') { loadCRHistory(); }
+      if(viewId === 'cr-upload-pending') { loadPendingCRTable(); } // අලුත් පේළිය
     }
 
     var modal = document.getElementById("imgModal"), img = document.getElementById("fullImage"), container = document.getElementById("modalContainer"); 
@@ -1176,7 +1290,103 @@
         reader.onerror = error => reject(error);
       });
     }
+// 1. සිංහල Seal එක පින්තූරයක් (PNG) විදිහට හදන Function එක
+    async function getSealImageBase64() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 300;
+      const ctx = canvas.getContext('2d');
+      
+      // පසුබිම Transparent කරනවා
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = "rgba(220, 53, 69, 0.4)"; // ලා රතු පාට
+      ctx.font = "bold 32px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      
+      // Seal එක හරහට (Diagonal) හිටින්න කරකවනවා
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 8); 
+      
+      // කොටුවක් (Border) ගහනවා 
+      ctx.strokeStyle = "rgba(220, 53, 69, 0.4)";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(-360, -80, 720, 170);
+      
+      // අකුරු ටික ලියනවා (දුම් වාර්තාව කියලා හැදුවා)
+      ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -35);
+      ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 10);
+      ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, 50);
+      
+      return canvas.toDataURL('image/png');
+    }
 
+    // 2. PDF එකට Seal එක ගහන Function එක
+    async function watermarkPDF(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+      
+      // අර හැදුව Seal පින්තූරය ගන්නවා
+      const sealDataUrl = await getSealImageBase64();
+      const sealImage = await pdfDoc.embedPng(sealDataUrl);
+      const { width: sealWidth, height: sealHeight } = sealImage.scale(0.8); 
+      
+      const pages = pdfDoc.getPages();
+      // PDF එකේ තියෙන හැම පිටුවකටම Seal එක ගහනවා
+      for(let i = 0; i < pages.length; i++) {
+         const page = pages[i];
+         const { width, height } = page.getSize();
+         page.drawImage(sealImage, {
+            x: (width / 2) - (sealWidth / 2),
+            y: (height / 2) - (sealHeight / 2),
+            width: sealWidth,
+            height: sealHeight
+         });
+      }
+      
+      const pdfBytes = await pdfDoc.save();
+      
+      // ආපහු Base64 වලට හරවනවා Backend එකට යවන්න
+      let binary = '';
+      const bytes = new Uint8Array(pdfBytes);
+      for (let i = 0; i < bytes.byteLength; i++) { binary += String.fromCharCode(bytes[i]); }
+      return window.btoa(binary);
+    }
+
+    // 3. සාමාන්‍ය Image එකට Seal එක ගහන Function එක
+    function compressAndWatermarkImage(file, maxWidth, quality) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader(); reader.readAsDataURL(file);
+        reader.onload = event => {
+          const img = new Image(); img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas'); let width = img.width; let height = img.height;
+            if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
+            canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); 
+            
+            ctx.drawImage(img, 0, 0, width, height); // ඔරිජිනල් ෆොටෝ එක
+
+            // Watermark (Seal) එක එකතු කිරීම
+            ctx.save();
+            ctx.fillStyle = "rgba(220, 53, 69, 0.4)"; 
+            let fontSize = Math.floor(width / 28); 
+            ctx.font = "bold " + fontSize + "px sans-serif";
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.translate(width / 2, height / 2); ctx.rotate(-Math.PI / 6); 
+            
+            ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -fontSize * 1.5);
+            ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 0);
+            ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, fontSize * 1.5);
+            ctx.restore();
+
+            const dataUrl = canvas.toDataURL('image/jpeg', quality); 
+            resolve({ data: dataUrl.split(',')[1], type: 'image/jpeg', name: file.name });
+          };
+        };
+        reader.onerror = error => reject(error);
+      });
+    }
     async function loadPendingValuations() {
       var container = document.getElementById("admin-req-list"); if(!container) return;
       container.innerHTML = "<div style='text-align:center; padding:20px;'>Loading pending requests...</div>";
@@ -1195,7 +1405,7 @@
           if(req.imgEngine !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgEngine)}')"><img src="${getImgUrl(req.imgEngine)}" onerror="${errImg}"><div class="admin-photo-label">Engine</div></div>`;
           if(req.imgMeter !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgMeter)}')"><img src="${getImgUrl(req.imgMeter)}" onerror="${errImg}"><div class="admin-photo-label">Meter</div></div>`;
           if(req.imgSheet !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgSheet)}')"><img src="${getImgUrl(req.imgSheet)}" onerror="${errImg}"><div class="admin-photo-label">Inspection Sheet</div></div>`;
-          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Inside Interior</div></div>`;
+          if(req.img. !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.img.)}')"><img src="${getImgUrl(req.img.)}" onerror="${errImg}"><div class="admin-photo-label">. Officer View</div></div>`;
           if(req.imgTyre !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgTyre)}')"><img src="${getImgUrl(req.imgTyre)}" onerror="${errImg}"><div class="admin-photo-label">Tyre Condition</div></div>`;
           if(req.imgCustomer !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgCustomer)}')"><img src="${getImgUrl(req.imgCustomer)}" onerror="${errImg}"><div class="admin-photo-label">Customer View</div></div>`;
 
@@ -1245,7 +1455,7 @@
       for (var i = 1; i < tr.length; i++) {
         var tdDate = tr[i].getElementsByTagName("td")[0]; var tdVeh = tr[i].getElementsByTagName("td")[2];
         if (tdDate && tdVeh) {
-          var rowDateStr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDateStr); var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1; var matchDate = true;
+          var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr); var matchSearch = tdVeh.innerText.toLowerCase().indexOf(search) > -1; var matchDate = true;
           if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
           if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
           tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
@@ -1263,7 +1473,7 @@
             for (var i = 0; i < tr.length; i++) {
                 var tds = tr[i].getElementsByTagName("td");
                 if (tds.length > 1) { 
-                    var rowDateStr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDateStr.split(" ")[0]); var matchSearch = false;
+                    var rowDaCrownr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]); var matchSearch = false;
                     tbl.searchCols.forEach(colIdx => { if (tds[colIdx] && tds[colIdx].innerText.toLowerCase().indexOf(search) > -1) { matchSearch = true; } });
                     var matchDate = true; if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
                     tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
@@ -1279,7 +1489,7 @@
         for (var i = 1; i < tr.length; i++) {
             var tdDate = tr[i].getElementsByTagName("td")[0]; var tdId = tr[i].getElementsByTagName("td")[1]; var tdVeh = tr[i].getElementsByTagName("td")[4]; var tdStatus = tr[i].getElementsByTagName("td")[5];
             if (tdDate && tdId && tdVeh && tdStatus) {
-                var rowDateStr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDateStr.split(" ")[0]);
+                var rowDaCrownr = tdDate.textContent || tdDate.innerText; var rowDate = new Date(rowDaCrownr.split(" ")[0]);
                 var matchSearch = (tdId.innerText.toLowerCase().indexOf(search) > -1) || (tdVeh.innerText.toLowerCase().indexOf(search) > -1);
                 var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1); var matchDate = true;
                 if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
@@ -1288,6 +1498,166 @@
         }
     }
     function clearCourierFilters() { document.getElementById("courierFromDate").value = ""; document.getElementById("courierToDate").value = ""; document.getElementById("courierSearch").value = ""; document.getElementById("courierStatusFilter").value = ""; filterCourierTable(); }
+  
+    // ==========================================
+    // CR UPLOAD MODULE FRONTEND LOGIC
+    // ==========================================
+    
+    var globalPendingCR = [];
+
+    // Pending List එක Load කරන function එක (Menu එක click කරද්දිත් run කරන්න පුළුවන්)
+    async function loadPendingCRList() {
+      try {
+        const res = await apiCall('getPendingCRUploads', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
+        globalPendingCR = res.data || [];
+        var datalist = document.getElementById('pending_cr_list');
+        datalist.innerHTML = "";
+        
+        globalPendingCR.forEach(item => {
+          // Datalist එකට දානවා (එතකොට Vehicle No එකෙන් හරි Ref No එකෙන් හරි Search කරන්න පුළුවන්)
+          var option = document.createElement('option');
+          option.value = item.vehNo;
+          option.text = `Ref: ${item.refNo} | Branch: ${item.branch}`;
+          datalist.appendChild(option);
+        });
+      } catch (error) { console.error("Error loading pending CRs", error); }
+    }
+
+    // Vehicle එක Select කරාම Details ටික පෙන්නනවා
+    function loadCRDetails() {
+      var searchVal = document.getElementById('cr_search_input').value;
+      var selected = globalPendingCR.find(x => x.vehNo === searchVal || x.refNo === searchVal);
+      
+      var detailsBox = document.getElementById('cr_details_box');
+      var uploadSec = document.getElementById('cr_upload_section');
+      
+      if (selected) {
+        document.getElementById('lbl_cr_ref').innerText = selected.refNo;
+        document.getElementById('lbl_cr_veh').innerText = selected.vehNo;
+        document.getElementById('lbl_cr_make').innerText = selected.makeModel;
+        document.getElementById('lbl_cr_appdate').innerText = selected.appDate;
+        document.getElementById('lbl_cr_branch').innerText = selected.branch;
+        document.getElementById('lbl_cr_user').innerText = selected.reqUser;
+        document.getElementById('cr_row_index').value = selected.row;
+        
+        detailsBox.style.display = 'block';
+        uploadSec.style.display = 'block';
+      } else {
+        detailsBox.style.display = 'none';
+        uploadSec.style.display = 'none';
+      }
+    }
+
+    // CR එක Upload කරන Function එක
+    async function submitFinalCR() {
+      var fileInput = document.getElementById('final_cr_file');
+      var rowIndex = document.getElementById('cr_row_index').value;
+      var vehNo = document.getElementById('lbl_cr_veh').innerText;
+      var refNo = document.getElementById('lbl_cr_ref').innerText;
+
+      if (fileInput.files.length === 0) {
+        return Swal.fire("Required", "Please select a CR document to upload!", "warning");
+      }
+
+      var btn = document.getElementById('crSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = "Processing File... ⏳";
+
+      try {
+        let f = fileInput.files[0];
+        let base64Str, typeStr, nameStr;
+
+        // --- අලුත් Watermark (Seal) කෑල්ල මෙතනට තමයි එන්නේ ---
+        if (f.type === "application/pdf") { 
+          btn.innerText = "Applying Seal to PDF... ⏳";
+          base64Str = await watermarkPDF(f);
+          typeStr = 'application/pdf'; 
+          nameStr = f.name; 
+        } else { 
+          btn.innerText = "Applying Seal to Image... ⏳";
+          let compressed = await compressAndWatermarkImage(f, 1000, 0.7); 
+          base64Str = compressed.data; 
+          typeStr = compressed.type; 
+          nameStr = compressed.name; 
+        }
+        // --------------------------------------------------------
+
+        btn.innerText = "Uploading to Drive & Saving to Sheet... 🚀";
+        
+        var payload = {
+          row: rowIndex,
+          vehNo: vehNo,
+          refNo: refNo,
+          uploadedBy: currentUser.user,
+          fileData: { base64: base64Str, type: typeStr, name: nameStr }
+        };
+
+        const serverRes = await apiCall('uploadFinalCR', payload);
+        
+        if (serverRes.success) {
+          Swal.fire("Success", "Final CR Uploaded Successfully!", "success");
+          document.getElementById('cr_search_input').value = "";
+          document.getElementById('final_cr_file').value = "";
+          document.getElementById('cr_details_box').style.display = 'none';
+          document.getElementById('cr_upload_section').style.display = 'none';
+          loadPendingCRList(); // List එකෙන් Hide කරන්න අලුත් list එක ගන්නවා
+          loadDashboardStats(); // Dashboard Summary Update කරනවා
+        } else {
+          Swal.fire("Error", serverRes.error, "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", error.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Upload & Save CR";
+      }
+    }
+    // Summary Report එක ලෝඩ් කරන function එක
+    async function loadCRHistory() {
+      var tbody = document.querySelector("#crHistoryTable tbody");
+      if(!tbody) return;
+      tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Loading data...</td></tr>";
+      
+      try {
+        const res = await apiCall('getCRUploadHistory', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
+        tbody.innerHTML = "";
+        if (res.data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No CR Upload History found.</td></tr>";
+          return;
+        }
+        
+        res.data.forEach(r => {
+          var fileLink = `<a href="${r.crUrl}" target="_blank" style="background:#28a745; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px; font-weight:bold;">View Document</a>`;
+          tbody.innerHTML += `<tr><td>${r.uploadDate}</td><td><b>${r.refNo}</b></td><td><span style="color:#0d6efd;font-weight:bold;">${r.vehNo}</span></td><td>${r.makeModel}</td><td>${r.uploadedBy}</td><td>${fileLink}</td></tr>`;
+        });
+      } catch(e) {
+        tbody.innerHTML = "<tr><td colspan='6' style='text-align:center; color:red;'>Error Loading Report</td></tr>";
+      }
+    }
+    // Pending List Table එකට Data Load කරන Function එක
+    async function loadPendingCRTable() {
+      var tbody = document.querySelector("#crPendingTable tbody");
+      if(!tbody) return;
+      tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>Loading data...</td></tr>";
+      
+      try {
+        // API එකට Role සහ Branch එක යවනවා
+        const res = await apiCall('getPendingCRUploads', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
+        tbody.innerHTML = "";
+        if (res.data.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='5' style='text-align:center;'>No Pending CRs found.</td></tr>";
+          return;
+        }
+        
+        res.data.forEach(r => {
+          var daysColor = r.pendingDays > 14 ? "color:red; font-weight:bold;" : "color:black;";
+          tbody.innerHTML += `<tr><td>${r.valDate}</td><td><span style="color:#0d6efd;font-weight:bold;">${r.vehNo}</span></td><td>${r.branch}</td><td>${r.reqUser}</td><td style="${daysColor}">${r.pendingDays} Days</td></tr>`;
+        });
+      } catch(e) {
+        tbody.innerHTML = "<tr><td colspan='5' style='text-align:center; color:red;'>Error Loading Pending List</td></tr>";
+      }
+    }
+
   </script>
 </body>
 </html>
