@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin_Portal_Multiple</title>
+  <title>Test_Portal_Multiple</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -114,6 +114,39 @@
     
     /* New Grid style for modules */
     .module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;}
+
+    /* =============== MOBILE RESPONSIVE STYLES =============== */
+    @media (max-width: 768px) {
+      /* Sidebar Overlay */
+      .sidebar { position: absolute; height: 100%; z-index: 9999; box-shadow: 2px 0 10px rgba(0,0,0,0.5); }
+      .sidebar.closed { width: 0; box-shadow: none; }
+      
+      /* Top Header & Content Area */
+      .welcome-text { font-size: 18px; margin-bottom: 15px; }
+      .header-right .user-profile .info { display: none; } /* Mobile එකේ ඉඩ ඉතුරු කරන්න නම විතරක් පෙන්වයි */
+      .content-area { padding: 15px; }
+
+      /* Cards & Grids to Single Column */
+      .admin-cards { flex-direction: column; gap: 10px; }
+      .admin-forms-grid { grid-template-columns: 1fr; }
+      .photo-grid { grid-template-columns: 1fr 1fr; } /* ෆොටෝස් පේළියට 2ක ගාණේ පෙන්නයි */
+      .perm-grid { grid-template-columns: 1fr; }
+      
+      /* Override inline grid styles for mobile forms */
+      #vForm div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      #val-view-modal div[style*="grid-template-columns:1fr 1fr"] { grid-template-columns: 1fr !important; }
+      
+      /* RMV & Valuation View Modal Fix for Mobile */
+      #rmv-approval-modal > div > div:nth-child(2) { flex-direction: column !important; overflow-y: auto; }
+      #rmv-approval-modal > div > div:nth-child(2) > div:first-child { width: 100% !important; border-right: none !important; border-bottom: 1px solid #ddd; height: auto !important; }
+      
+      /* Filters Area Fix (Search, Date, Clear buttons) */
+      .view-section > div[style*="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end;"] { flex-direction: column; gap: 10px !important; align-items: stretch !important; }
+      .view-section > div[style*="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end;"] > div { width: 100%; }
+      
+      /* Prevent iOS Auto-zoom on inputs */
+      input, select, textarea { font-size: 16px !important; } 
+    }
   </style>
 </head>
 <body>
@@ -141,7 +174,7 @@
     <header class="top-header">
       <div class="brand" style="display: flex; align-items: center; gap: 15px; font-weight: bold;">
         <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor: pointer; font-size: 20px; color: var(--accent-red-light);"></i>
-        Admin Portal
+        Test Portal
       </div>
       <div class="header-right">
         <div class="user-profile">
@@ -639,12 +672,13 @@
                <div style="flex:1;"><label style="font-size:12px;font-weight:bold;color:#555;">To Date</label><input type="date" id="rmvToDate" onchange="filterRmvTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;"></div>
                <div><button onclick="clearRmvFilters()" style="background:#6c757d; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer;">Clear</button></div>
              </div>
-             <div style="border: 2px solid #800000; border-radius: 5px; overflow: hidden;">
-               <table id="rmvTable" style="width:100%; border-collapse:collapse; text-align:center; font-size:14px;">
+             <!-- overflow: hidden වෙනුවට overflow-x: auto දැම්මා -->
+             <div style="border: 2px solid #800000; border-radius: 5px; overflow-x: auto;">
+               <table id="rmvTable" style="width:100%; border-collapse:collapse; text-align:center; font-size:14px; white-space: nowrap;">
                  <thead style="background:#2d2d2d; color:#fff;"><tr><th>Company</th><th style="padding:15px;">Date & Time</th><th>Request ID</th><th>Vehicle No</th><th>Branch</th><th>Action By</th><th>Status</th><th>Action</th></tr></thead>
                  <tbody></tbody>
                </table>
-             </div>
+             </div>          
           </div>
         </div>
 
@@ -1334,7 +1368,7 @@
             };
             
             if (navigator.geolocation) { 
-                navigator.geolocation.getCurrentPosition(pos => executeValSubmit(pos.coords.latitude, pos.coords.longitude), err => executeValSubmit("", ""), { enableHighAccuracy: true, timeout: 10000 }); 
+                navigator.geolocation.getCurrentPosition(pos => executeValSubmit(pos.coords.latitude, pos.coords.longitude), err => executeValSubmit("", ""), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }); 
             } else { executeValSubmit("", ""); }
           };
         }
@@ -1367,9 +1401,14 @@
                 rbtn.innerText = "Submit Request & Capture Location 📍"; rbtn.disabled = false;
               } catch (error) { Swal.fire("Upload Error", error.message, "error"); rbtn.innerText = "Submit Request & Capture Location 📍"; rbtn.disabled = false; }
             };
-            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(pos => executeSubmit(pos.coords.latitude, pos.coords.longitude), err => executeSubmit("", ""), { enableHighAccuracy: true, timeout: 10000 }); } 
+            if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(pos => executeSubmit(pos.coords.latitude, pos.coords.longitude), err => executeSubmit("", ""), { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }); } 
             else { executeSubmit("", ""); }
           };
+        }
+        
+        // Mobile එකේදී මුලින්ම ලොග් වෙද්දී Sidebar එක හංගනවා
+        if (window.innerWidth <= 768) {
+            document.getElementById('main-sidebar').classList.add('closed');
         }
       } catch(e) { console.log(e); }
     }
@@ -2017,6 +2056,12 @@
       if(element) { element.classList.add('active'); element.querySelector('i').className = 'fas fa-check-circle'; }
       document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
       var view = document.getElementById('view-' + viewId); if(view) view.style.display = 'block';
+      
+      // Mobile එකේදී Menu Item එකක් Click කරාම Sidebar එක Auto-Close වෙනවා
+      if (window.innerWidth <= 768) {
+          document.getElementById('main-sidebar').classList.add('closed');
+      }
+
       if(viewId === 'dashboard') loadDashboardStats();
       if(viewId === 'courier-new') { generateAutoId(); }
       if(viewId === 'courier-admin') loadCourierData();
@@ -2068,7 +2113,7 @@
          btn.disabled = false; btn.innerText = "Dispatch Package";
       };
 
-      if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( pos => executeCourierSubmit(pos.coords.latitude, pos.coords.longitude), err => { Swal.fire("Location Blocked", "Saving without GPS location.", "info"); executeCourierSubmit("Location Blocked", "Location Blocked"); }, { enableHighAccuracy: true, timeout: 8000 } ); } 
+      if (navigator.geolocation) { navigator.geolocation.getCurrentPosition( pos => executeCourierSubmit(pos.coords.latitude, pos.coords.longitude), err => { Swal.fire("Location Blocked", "Saving without GPS location.", "info"); executeCourierSubmit("Location Blocked", "Location Blocked"); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 } ); } 
       else { executeCourierSubmit("Not Supported", "Not Supported"); }
     }
 
