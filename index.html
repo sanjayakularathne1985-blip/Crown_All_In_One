@@ -70,7 +70,7 @@
     .admin-input:focus { border-color: #0d6efd; }
     
     /* Checkbox & Radio Styles for Permissions */
-    .perm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .perm-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
     .perm-box { background: #f8f9fa; padding: 15px; border-radius: 5px; border: 1px solid #ddd; }
     .perm-box h4 { margin-top: 0; margin-bottom: 12px; color: #333; font-size: 14px; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
     .perm-label { display: block; font-size: 13px; color: #444; margin-bottom: 8px; cursor: pointer; }
@@ -111,6 +111,9 @@
     .rotate-btn { position: absolute; top: 25px; right: 90px; background: rgba(255,255,255,0.2); color: white; padding: 8px 15px; border-radius: 5px; cursor: pointer; z-index: 10100; font-weight: bold; border: 1px solid white; font-size: 14px; }
     .rotate-btn:hover { background: rgba(255,255,255,0.4); }
     .swal2-container { z-index: 99999 !important; }
+    
+    /* New Grid style for modules */
+    .module-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;}
   </style>
 </head>
 <body>
@@ -138,7 +141,7 @@
     <header class="top-header">
       <div class="brand" style="display: flex; align-items: center; gap: 15px; font-weight: bold;">
         <i class="fas fa-bars" onclick="toggleSidebar()" style="cursor: pointer; font-size: 20px; color: var(--accent-red-light);"></i>
-        Admin_Portal
+        Admin Portal
       </div>
       <div class="header-right">
         <div class="user-profile">
@@ -367,14 +370,24 @@
               <datalist id="reset-uname"></datalist>
               <button class="btn-submit" style="background:#dc3545;" onclick="resetPasswordAdmin()">Reset Password</button>
             </div>
-            
-            <!-- NEW: Valuation Template Settings Card -->
+
+            <!-- Valuation Template Settings Card -->
             <div class="template-form-card" id="template-setup-card" style="display:none;">
               <h3><i class="fas fa-file-word"></i> Valuation Template Settings</h3>
               <p style="font-size:13px; color:#666; margin-bottom:15px;">Set a unique Google Doc template URL for each company.</p>
               <input type="text" id="tpl-company" list="comp-list" class="admin-input" placeholder="Select Company Name...">
               <input type="text" id="tpl-url" class="admin-input" placeholder="Google Doc Template URL or ID">
               <button class="btn-submit" style="background:#6f42c1;" onclick="saveTemplateAdmin()">Save Template</button>
+            </div>
+
+            <!-- 5. Change User Branch Card -->
+            <div class="user-form-card">
+              <h3><i class="fas fa-exchange-alt"></i> Change User Branch</h3>
+              <p style="font-size:12px; color:#666; margin-bottom:10px;">Move an existing user to a different company/branch.</p>
+              <input type="text" id="move-username" list="perm-user-list" class="admin-input" placeholder="Select Username..." onchange="autoFillMoveUser()">
+              <input type="text" id="move-company" list="comp-list" class="admin-input" placeholder="Select New Company" onchange="filterBranchDropdown(this.value, 'move-branch')" style="display: none;">
+              <select id="move-branch" class="admin-input"><option value="">-- Select New Branch --</option></select>
+              <button class="btn-submit" style="background:#6c757d;" onclick="changeUserBranch()">Move User</button>
             </div>
 
             <!-- 4. Permissions Management Card -->
@@ -399,78 +412,122 @@
                  </div>
                  
                  <div class="perm-grid">
-                    <!-- Category A: Module Access (WITH SUB-LISTS) -->
-                    <div class="perm-box" style="max-height: 480px; overflow-y: auto;">
-                       <h4 style="position: sticky; top: 0; background: #f8f9fa; z-index: 10; margin-top:-5px; padding-top:5px;">Module & Feature Access</h4>
+                    <!-- Category A: Module Access & Scope -->
+                    <div class="perm-box" style="max-height: 550px; overflow-y: auto;">
+                       <h4 style="position: sticky; top: 0; background: #f8f9fa; z-index: 10; margin-top:-5px; padding-top:5px;">Module, Feature & Data Scope Access</h4>
                        
-                       <div style="margin-bottom: 12px;">
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#000;"><input type="checkbox" id="chk_dash" checked> <i class="fas fa-home" style="width:20px; color:#c62828;"></i> Home Dashboard</label>
                        </div>
 
-                       <div style="margin-bottom: 12px;">
+                       <!-- COURIER PORTAL -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_courier_main" onchange="toggleSub('chk_courier_main', 'sub_courier')"> <i class="fas fa-shipping-fast" style="width:20px;"></i> Courier Portal</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_courier" id="chk_courier_send"> Send New Request</label>
                                <label class="perm-label"><input type="checkbox" class="sub_courier" id="chk_courier_action"> Action Portal</label>
+                               
+                               <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
+                                <select id="scope_courier" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('courier')">
+                                    <option value="MY_REQUESTS">Only My Requests (User Level)</option>
+                                    <option value="BRANCH_MANAGER">Branch Manager (Full Branch Data)</option>
+                                    <option value="SELECTED_BRANCH">Selected Branches Only</option>
+                                    <option value="SELECTED_COMPANY" class="opt-selected-company" style="display:none;">Selected Company - All Branches</option>
+                                    <option value="ALL">All Branches - Same Company</option>
+                                </select>
+                                <select id="branch_courier" multiple class="admin-input perm-branch-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
+                                <select id="company_courier" multiple class="admin-input perm-company-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
                            </div>
                        </div>
 
-                       <div style="margin-bottom: 12px;">
+                       <!-- RMV CONFIRMATION -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_rmv_main" onchange="toggleSub('chk_rmv_main', 'sub_rmv')"> <i class="fas fa-car" style="width:20px;"></i> RMV Confirmation</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_req"> Confirmation Request</label>
                                <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_action"> Action Portal</label>
+                               
+                               <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
+                                <select id="scope_rmv" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('rmv')">
+                                    <option value="MY_REQUESTS">Only My Requests (User Level)</option>
+                                    <option value="BRANCH_MANAGER">Branch Manager (Full Branch Data)</option>
+                                    <option value="SELECTED_BRANCH">Selected Branches Only</option>
+                                    <option value="SELECTED_COMPANY" class="opt-selected-company" style="display:none;">Selected Company - All Branches</option>
+                                    <option value="ALL">All Branches - Same Company</option>
+                                </select>
+                                <select id="branch_rmv" multiple class="admin-input perm-branch-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
+                                <select id="company_rmv" multiple class="admin-input perm-company-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
                            </div>
                        </div>
 
-                       <div style="margin-bottom: 12px;">
+                       <!-- VALUATION PORTAL -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_val_main" onchange="toggleSub('chk_val_main', 'sub_val')"> <i class="fas fa-file-invoice-dollar" style="width:20px;"></i> Valuation Portal</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_new"> New Valuation</label>
                                <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_pend"> Pending Approvals</label>
                                <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_hist"> Valuation History</label>
+                               
+                               <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
+                                <select id="scope_val" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('val')">
+                                    <option value="MY_REQUESTS">Only My Requests (User Level)</option>
+                                    <option value="BRANCH_MANAGER">Branch Manager (Full Branch Data)</option>
+                                    <option value="SELECTED_BRANCH">Selected Branches Only</option>
+                                    <option value="SELECTED_COMPANY" class="opt-selected-company" style="display:none;">Selected Company - All Branches</option>
+                                    <option value="ALL">All Branches - Same Company</option>
+                                </select>
+                                <select id="branch_val" multiple class="admin-input perm-branch-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
+                                <select id="company_val" multiple class="admin-input perm-company-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
                            </div>
                        </div>
                        
-                       <div style="margin-bottom: 12px;">
+                       <!-- SYSTEM ADMIN -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_admin_main" onchange="toggleSub('chk_admin_main', 'sub_admin')"> <i class="fas fa-shield-alt" style="width:20px;"></i> System Admin</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_admin" id="chk_admin_user"> User Maintenance</label>
                                <label class="perm-label"><input type="checkbox" class="sub_admin" id="chk_admin_map"> Live Request Map</label>
+                               <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope (Admin):</label>
+                                <select id="scope_admin" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('admin')">
+                                    <option value="BRANCH_MANAGER">Branch Admin Only</option>
+                                    <option value="SELECTED_BRANCH">Selected Branches Only</option>
+                                    <option value="SELECTED_COMPANY" class="opt-selected-company" style="display:none;">Selected Company - All Branches</option>
+                                    <option value="ALL">All Branches - Same Company</option>
+                                    <option value="ALL_COMPANIES" id="opt_all_comp" style="display:none;">All Companies (System Owner)</option>
+                                </select>
+                                <select id="branch_admin" multiple class="admin-input perm-branch-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
+                                <select id="company_admin" multiple class="admin-input perm-company-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
                            </div>
                        </div>
 
-                       <div style="margin-bottom: 12px;">
+                       <!-- CR UPLOAD -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_cr_main" onchange="toggleSub('chk_cr_main', 'sub_cr')"> <i class="fas fa-file-upload" style="width:20px;"></i> CR Upload Option</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_cr" id="chk_cr_new"> New CR Upload</label>
                                <label class="perm-label"><input type="checkbox" class="sub_cr" id="chk_cr_pend"> Pending Uploads</label>
                                <label class="perm-label"><input type="checkbox" class="sub_cr" id="chk_cr_hist"> Upload History</label>
+                               <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
+                                <select id="scope_cr" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('cr')">
+                                    <option value="MY_REQUESTS">Only My Requests</option>
+                                    <option value="BRANCH_MANAGER">Branch Manager</option>
+                                    <option value="SELECTED_BRANCH">Selected Branches Only</option>
+                                    <option value="SELECTED_COMPANY" class="opt-selected-company" style="display:none;">Selected Company - All Branches</option>
+                                    <option value="ALL">All Branches - Same Company</option>
+                                </select>
+                                <select id="branch_cr" multiple class="admin-input perm-branch-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
+                                <select id="company_cr" multiple class="admin-input perm-company-select" style="height:60px; display:none; font-size: 11px; margin-bottom: 0;"></select>
                            </div>
                        </div>
 
-                       <div style="margin-bottom: 12px;">
+                       <!-- RMV PRINT -->
+                       <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_print_main" onchange="toggleSub('chk_print_main', 'sub_print')"> <i class="fas fa-file-invoice" style="width:20px;"></i> RMV_Print</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_print" id="chk_print_add"> Add Data</label>
                                <label class="perm-label"><input type="checkbox" class="sub_print" id="chk_print_paper"> Print Papers</label>
                                <label class="perm-label"><input type="checkbox" class="sub_print" id="chk_print_box"> Pre-Print (Box Format)</label>
                            </div>
-                       </div>
-
-                    </div>
-                    
-                    <div class="perm-box">
-                       <h4>Data Visibility Scope</h4>
-                       <label class="perm-label"><input type="radio" name="data_scope" value="OWN" onchange="toggleBranchSelect()" checked> Own/Current Branch Only</label>
-                       <label class="perm-label"><input type="radio" name="data_scope" value="SELECTED" onchange="toggleBranchSelect()"> Selected Branches</label>
-                       <label class="perm-label"><input type="radio" name="data_scope" value="ALL" onchange="toggleBranchSelect()"> All Branches (Global View - Same Company)</label>
-                       <label class="perm-label" id="lbl_scope_all_companies"><input type="radio" name="data_scope" value="ALL_COMPANIES" onchange="toggleBranchSelect()"> All Companies & Branches (System Admin)</label>
-                       
-                       <div id="selected-branches-div" style="display:none; margin-top:10px; background:#fff; padding:10px; border:1px solid #ccc; border-radius:4px;">
-                          <label style="font-size:12px; font-weight:bold; margin-bottom:5px; display:block;">Select Allowed Branches:</label>
-                          <select id="perm-branch-select" multiple class="admin-input" style="height:100px; margin-bottom:5px;"></select>
-                          <small style="color:#777; font-size:11px;">Hold <b>Ctrl</b> (Windows) or <b>Cmd</b> (Mac) to select multiple.</small>
                        </div>
                     </div>
                  </div>
@@ -821,8 +878,6 @@
             if (payload.company === undefined || payload.company === "") payload.company = currentUser.company; 
             payload.creatorRole = currentUser.role;
             payload.creatorCompany = currentUser.company;
-            
-            // වෙනස: දැනටමත් username එකක් දීලා නැත්නම් විතරක් ලොග් වෙලා ඉන්න කෙනාගේ username එක දානවා
             if (payload.username === undefined) payload.username = currentUser.username; 
             
             if (payload.data && typeof payload.data === 'object') {
@@ -975,22 +1030,64 @@
             select.add(new Option(b.branch + " (" + b.company + ")", b.branch));
         });
     }
-  function populateTargetBranchDropdown() {
+
+    function autoFillMoveUser() {
+      var u = document.getElementById('move-username').value;
+      var uRole = currentUser.role ? currentUser.role.toLowerCase().trim() : "";
+      
+      if (!u) {
+         document.getElementById('move-company').value = "";
+         var comp = uRole === 'system owner' ? '' : currentUser.company;
+         filterBranchDropdown(comp, 'move-branch');
+         return;
+      }
+      
+      var selectedUser = systemUsersData.find(user => user.username === u);
+      if (selectedUser) {
+         document.getElementById('move-company').value = selectedUser.company || "";
+         filterBranchDropdown(selectedUser.company || "", 'move-branch');
+         
+         if (selectedUser.branch) {
+             setTimeout(() => {
+                 document.getElementById('move-branch').value = selectedUser.branch;
+             }, 50);
+         }
+      }
+    }
+    
+    function populateTargetBranchDropdown() {
         var select = document.getElementById('target_branch');
         if(!select) return;
         select.innerHTML = '<option value="">-- Select Branch --</option>';
         
         var uComp = currentUser.company ? currentUser.company.toLowerCase().trim() : "";
         var uRole = currentUser.role ? currentUser.role.toLowerCase().trim() : "";
-        var scope = currentUser.dataScope ? currentUser.dataScope : "OWN";
-        var assigned = currentUser.assignedBranches ? currentUser.assignedBranches.split(',').map(s => s.trim().toLowerCase()) : [];
+        
+        // Use the new moduleScopes if available, otherwise default to OWN
+        var scope = "OWN";
+        var assigned = [];
+        try {
+            if(currentUser.moduleScopes) {
+                var parsedScopes = JSON.parse(currentUser.moduleScopes);
+                if(parsedScopes.courier) {
+                    scope = parsedScopes.courier.scope || "MY_REQUESTS";
+                    if(parsedScopes.courier.branches) {
+                        assigned = parsedScopes.courier.branches.split(',').map(s => s.trim().toLowerCase());
+                    }
+                }
+            } else if(currentUser.dataScope) {
+                scope = currentUser.dataScope;
+                if(currentUser.assignedBranches) {
+                    assigned = currentUser.assignedBranches.split(',').map(s => s.trim().toLowerCase());
+                }
+            }
+        } catch(e) {}
         
         var filtered = globalBranchesFull;
         
         if (uRole === 'system owner' || scope === 'ALL_COMPANIES') {
             filtered = globalBranchesFull;
-        } else if (scope === 'SELECTED') {
-            // Trim කරලා Exact Match එක බලනවා
+        } else if (scope === 'SELECTED_BRANCH' || scope === 'SELECTED') {
             filtered = globalBranchesFull.filter(b => {
                 var c = b.company ? b.company.trim().toLowerCase() : "";
                 var br = b.branch ? b.branch.trim().toLowerCase() : "";
@@ -1005,6 +1102,7 @@
             select.add(new Option(b.branch + " (" + b.company + ")", b.branch));
         });
     }    
+
     function setupDashboardPostLogin(res) {
       try {
         var uName = res.user ? res.user : "Admin";
@@ -1022,17 +1120,22 @@
         loadDashboardStats();
         initVehicleData();
 
-if (uRole === 'system owner') {
+        if (uRole === 'system owner') {
             document.getElementById('new-user-company').style.display = 'block';
             document.getElementById('perm-company-filter').style.display = 'block';
             document.querySelector('.branch-form-card').style.display = 'block';
             document.getElementById('template-setup-card').style.display = 'block';
+            document.getElementById('move-company').style.display = 'block';
             
-            // System Owner ට ALL_COMPANIES scope එක පේන්න ඕනේ
-            var scopeAllComp = document.getElementById('lbl_scope_all_companies');
-            if (scopeAllComp) scopeAllComp.style.display = 'block';
+            var optAllComp = document.getElementById('opt_all_comp');
+            if (optAllComp) optAllComp.style.display = 'block';
 
-            // System Owner ට Roles ඔක්කොම පේන්න ඕනේ
+            document.querySelectorAll('.opt-selected-company').forEach(opt => {
+                opt.style.display = 'block';
+                opt.disabled = false;
+                opt.hidden = false;
+            });
+
             var roleSelect = document.getElementById('new-user-role');
             if (roleSelect) {
                 roleSelect.innerHTML = '<option value="User">User</option><option value="rmv branch">RMV Branch User</option><option value="rmv approval">RMV Request Approval User</option><option value="valuation admin">Valuation Admin</option><option value="super admin">Super Admin</option>';
@@ -1041,12 +1144,24 @@ if (uRole === 'system owner') {
         } else {
             document.querySelector('.branch-form-card').style.display = 'none';
             document.getElementById('template-setup-card').style.display = 'none';
+            document.getElementById('new-user-company').style.display = 'none';
+            document.getElementById('move-company').style.display = 'none';
+            document.getElementById('perm-company-filter').style.display = 'none';
             
-            // අනිත් අයට (Super Admin ඇතුළුව) ALL_COMPANIES scope එක Hide කිරීම
-            var scopeAllComp = document.getElementById('lbl_scope_all_companies');
-            if (scopeAllComp) scopeAllComp.style.display = 'none';
+            var optAllComp = document.getElementById('opt_all_comp');
+            if (optAllComp) {
+                optAllComp.style.display = 'none';
+                optAllComp.disabled = true;
+                optAllComp.hidden = true;
+            }
 
-            // Super Admin ට Create User කරද්දී Role එක 'User' විතරක් පෙන්වීම
+            document.querySelectorAll('.opt-selected-company').forEach(opt => {
+                opt.style.display = 'none';
+                opt.disabled = true;
+                opt.hidden = true;
+                if(opt.parentNode) opt.parentNode.removeChild(opt); 
+            });
+
             var roleSelect = document.getElementById('new-user-role');
             if (roleSelect) {
                 roleSelect.innerHTML = '<option value="User">User</option>';
@@ -1056,35 +1171,58 @@ if (uRole === 'system owner') {
         apiCall('getCompanyList', {}, 'GET').then(res => {
            if(res.data) {
                let dl = document.getElementById('comp-list');
-               if(dl) {
-                   dl.innerHTML = '';
-                   res.data.forEach(c => {
-                       let opt = document.createElement('option');
-                       opt.value = c;
-                       dl.appendChild(opt);
-                   });
-               }
+               if(dl) dl.innerHTML = '';
+               
+               let sortedComps = [...res.data].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+               
+               sortedComps.forEach(c => {
+                   let opt = document.createElement('option');
+                   opt.value = c;
+                   if(dl) dl.appendChild(opt);
+               });
+
+               var compSelects = document.querySelectorAll('.perm-company-select');
+               compSelects.forEach(selectBox => {
+                   selectBox.innerHTML = '';
+                   sortedComps.forEach(c => selectBox.add(new Option(c, c)));
+                   
+                   selectBox.style.height = "auto";
+                   selectBox.style.overflow = "hidden";
+                   selectBox.size = sortedComps.length > 2 ? sortedComps.length : 2; 
+               });
            }
         });
 
         apiCall('getBranchListFull', {}, 'GET').then(res => { 
             if(res.data){ 
-                globalBranchesFull = res.data;
+                globalBranchesFull = res.data.sort((a, b) => {
+                    let compA = (a.company || "").toLowerCase();
+                    let compB = (b.company || "").toLowerCase();
+                    if(compA < compB) return -1;
+                    if(compA > compB) return 1;
+                    let brA = (a.branch || "").toLowerCase();
+                    let brB = (b.branch || "").toLowerCase();
+                    if(brA < brB) return -1;
+                    if(brA > brB) return 1;
+                    return 0;
+                });
                 
-                var permSelect = document.getElementById('perm-branch-select');
-                if(permSelect) {
-                   permSelect.innerHTML = '';
-                   globalBranchesFull.forEach(b => {
-                       // වෙනස මෙතනයි: පේන්නේ "Branch (Company)", සේව් වෙන්නේ "Company - Branch"
-                       permSelect.add(new Option(b.branch + " (" + b.company + ")", b.company + " - " + b.branch));
-                   });
-                }
+                var permSelects = document.querySelectorAll('.perm-branch-select');
+                permSelects.forEach(selectBox => {
+                    selectBox.innerHTML = '';
+                    globalBranchesFull.forEach(b => {
+                        selectBox.add(new Option(b.company + " - " + b.branch, b.company + " - " + b.branch));
+                    });
+                    
+                    selectBox.style.height = "auto";
+                    selectBox.style.overflow = "hidden";
+                    selectBox.size = globalBranchesFull.length > 5 ? globalBranchesFull.length : 5;
+                });
 
-                // User Maintenance එකේ Dropdown එකට
                 var isGlobalUser = (uRole === 'system owner' || currentUser.dataScope === 'ALL_COMPANIES');
-                filterBranchDropdown(isGlobalUser ? '' : uComp, 'new-user-branch');
-                
-                // Target Branch Dropdown එකට අලුත් Function එක කෝල් කිරීම
+                var comp = isGlobalUser ? '' : currentUser.company;
+                filterBranchDropdown(comp, 'new-user-branch');
+                filterBranchDropdown(comp, 'move-branch');
                 populateTargetBranchDropdown();
             } 
         });
@@ -1095,7 +1233,7 @@ if (uRole === 'system owner') {
                 var compFilter = document.getElementById('perm-company-filter');
                 if (compFilter && uRole === 'system owner') {
                    compFilter.innerHTML = '<option value="ALL">All Companies</option>';
-                   let comps = [...new Set(res.data.map(u => u.company))];
+                   let comps = [...new Set(res.data.map(u => u.company))].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
                    comps.forEach(c => compFilter.add(new Option(c, c)));
                 }
                 populateUserDatalists('ALL');
@@ -1160,35 +1298,44 @@ if (uRole === 'system owner') {
         var valForm = document.getElementById('vForm');
         if(valForm) {
           valForm.onsubmit = async function(e) {
-            e.preventDefault(); const vbtn = document.getElementById('valSubmitBtn'); vbtn.disabled = true; vbtn.innerText = "Processing Details...";
-            try {
-              const formData = {}; 
-              e.target.querySelectorAll('input:not([type="file"]), select, textarea').forEach(inp => formData[inp.name] = inp.value); 
-              formData.requesterEmail = currentUser.email || ""; formData.requesterName = currentUser.user || "Unknown"; formData.branch = currentUser.branch || "Unknown"; 
-              
-              let filesToUpload = []; 
-              e.target.querySelectorAll('input[type="file"]').forEach(inp => { if (inp.files.length > 0) filesToUpload.push({ inputName: inp.name, file: inp.files[0] }); else formData[inp.name] = "No Image"; });
-              
-              for (let i = 0; i < filesToUpload.length; i++) {
-                let f = filesToUpload[i]; vbtn.innerText = `Uploading File ${i+1} of ${filesToUpload.length}...`;
-                await new Promise(r => setTimeout(r, 100)); 
-                let base64Str, typeStr, nameStr;
-                if (f.file.type === "application/pdf") { 
-                  let b64 = await new Promise((res2, rej) => { let fr = new FileReader(); fr.onload = ev => res2(ev.target.result); fr.onerror = err => rej(err); fr.readAsDataURL(f.file); }); 
-                  base64Str = b64.split(',')[1]; typeStr = 'application/pdf'; nameStr = f.file.name; 
-                } else { 
-                  let compressed = await compressImage(f.file, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
-                }
-                
-                let result = await apiCall('uploadValuationImage', { data: { base64: base64Str, type: typeStr, name: nameStr, key: f.inputName, vehicleNo: formData.vehicleNo } }); 
-                if (result && result.success) { formData[result.key] = result.url; } else { throw new Error("Failed to upload"); } 
-              }
-              vbtn.innerText = "Saving Request to Database...";
-              const serverRes = await apiCall('submitValuationForm', { data: formData });
-              if(serverRes.success) { Swal.fire("Success", serverRes.result, "success"); e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); loadDashboardStats(); switchView('dashboard', null); } 
-              else { Swal.fire("System Error", serverRes.error, "error"); }
-              vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false;
-            } catch (error) { Swal.fire("Upload Error", error.message, "error"); vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false; }
+            e.preventDefault(); const vbtn = document.getElementById('valSubmitBtn'); vbtn.disabled = true; vbtn.innerText = "Getting GPS Location... 📍";
+            
+            const executeValSubmit = async function(lat, lng) {
+                vbtn.innerText = "Processing Details...";
+                try {
+                  const formData = {}; 
+                  e.target.querySelectorAll('input:not([type="file"]), select, textarea').forEach(inp => formData[inp.name] = inp.value); 
+                  formData.requesterEmail = currentUser.email || ""; formData.requesterName = currentUser.user || "Unknown"; formData.branch = currentUser.branch || "Unknown"; 
+                  formData.lat = lat; formData.lng = lng; 
+                  
+                  let filesToUpload = []; 
+                  e.target.querySelectorAll('input[type="file"]').forEach(inp => { if (inp.files.length > 0) filesToUpload.push({ inputName: inp.name, file: inp.files[0] }); else formData[inp.name] = "No Image"; });
+                  
+                  for (let i = 0; i < filesToUpload.length; i++) {
+                    let f = filesToUpload[i]; vbtn.innerText = `Uploading File ${i+1} of ${filesToUpload.length}...`;
+                    await new Promise(r => setTimeout(r, 100)); 
+                    let base64Str, typeStr, nameStr;
+                    if (f.file.type === "application/pdf") { 
+                      let b64 = await new Promise((res2, rej) => { let fr = new FileReader(); fr.onload = ev => res2(ev.target.result); fr.onerror = err => rej(err); fr.readAsDataURL(f.file); }); 
+                      base64Str = b64.split(',')[1]; typeStr = 'application/pdf'; nameStr = f.file.name; 
+                    } else { 
+                      let compressed = await compressImage(f.file, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
+                    }
+                    
+                    let result = await apiCall('uploadValuationImage', { data: { base64: base64Str, type: typeStr, name: nameStr, key: f.inputName, vehicleNo: formData.vehicleNo } }); 
+                    if (result && result.success) { formData[result.key] = result.url; } else { throw new Error("Failed to upload"); } 
+                  }
+                  vbtn.innerText = "Saving Request to Database...";
+                  const serverRes = await apiCall('submitValuationForm', { data: formData });
+                  if(serverRes.success) { Swal.fire("Success", serverRes.result, "success"); e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); loadDashboardStats(); switchView('dashboard', null); } 
+                  else { Swal.fire("System Error", serverRes.error, "error"); }
+                  vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false;
+                } catch (error) { Swal.fire("Upload Error", error.message, "error"); vbtn.innerText = "Submit Valuation Request"; vbtn.disabled = false; }
+            };
+            
+            if (navigator.geolocation) { 
+                navigator.geolocation.getCurrentPosition(pos => executeValSubmit(pos.coords.latitude, pos.coords.longitude), err => executeValSubmit("", ""), { enableHighAccuracy: true, timeout: 10000 }); 
+            } else { executeValSubmit("", ""); }
           };
         }
 
@@ -1542,7 +1689,17 @@ if (uRole === 'system owner') {
           
           apiCall('getBranchListFull', {}, 'GET').then(res2 => { 
             if(res2.data){ 
-                globalBranchesFull = res2.data;
+                globalBranchesFull = res2.data.sort((a, b) => {
+                    let compA = (a.company || "").toLowerCase();
+                    let compB = (b.company || "").toLowerCase();
+                    if(compA < compB) return -1;
+                    if(compA > compB) return 1;
+                    let brA = (a.branch || "").toLowerCase();
+                    let brB = (b.branch || "").toLowerCase();
+                    if(brA < brB) return -1;
+                    if(brA > brB) return 1;
+                    return 0;
+                });
                 var comp = currentUser.role.toLowerCase() === 'system owner' ? '' : currentUser.company;
                 filterBranchDropdown(comp, 'new-user-branch');
                 filterBranchDropdown(comp, 'target_branch');
@@ -1562,6 +1719,28 @@ if (uRole === 'system owner') {
       } catch(error) { Swal.fire("Error", "Server Error", "error"); }
     }
 
+    async function changeUserBranch() {
+      var u = document.getElementById('move-username').value;
+      var c = document.getElementById('move-company').value;
+      if (!c || c.trim() === "") { c = currentUser.company; }
+      var b = document.getElementById('move-branch').value;
+      
+      if(!u || !c || !b) return Swal.fire("Required", "Please fill all fields!", "warning");
+      
+      Swal.fire({title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+      try {
+        const res = await apiCall('changeUserBranch', { targetUser: u, newCompany: c, newBranch: b });
+        if(res.success) {
+           Swal.fire("Success!", res.msg, "success");
+           document.getElementById('move-username').value = "";
+           document.getElementById('move-company').value = "";
+           document.getElementById('move-branch').innerHTML = '<option value="">-- Select New Branch --</option>';
+        } else {
+           Swal.fire("Error", res.error || res.msg || "Failed", "error");
+        }
+      } catch(e) { Swal.fire("Error", "Server Error", "error"); }
+    }
+
     // ========================================================
     // NEW: USER PERMISSIONS & ACCESS MANAGEMENT LOGIC
     // ========================================================
@@ -1573,14 +1752,17 @@ if (uRole === 'system owner') {
         });
     }
 
-    function toggleBranchSelect() {
-      var scope = document.querySelector('input[name="data_scope"]:checked').value;
-      var branchDiv = document.getElementById('selected-branches-div');
-      if(scope === 'SELECTED') {
-         branchDiv.style.display = 'block';
-      } else {
-         branchDiv.style.display = 'none';
-      }
+    function toggleModuleBranch(module) {
+        var scope = document.getElementById('scope_' + module).value;
+        var branchSelect = document.getElementById('branch_' + module);
+        var companySelect = document.getElementById('company_' + module);
+        
+        if(branchSelect) {
+            branchSelect.style.display = (scope === 'SELECTED_BRANCH' || scope === 'SELECTED') ? 'block' : 'none';
+        }
+        if(companySelect) {
+            companySelect.style.display = (scope === 'SELECTED_COMPANY') ? 'block' : 'none';
+        }
     }
 
     async function loadUserPermDetails() {
@@ -1601,10 +1783,9 @@ if (uRole === 'system owner') {
         const res = await apiCall('getUserPermDetails', { username: user }, 'GET');
         
         document.querySelectorAll('.perm-label input[type="checkbox"]').forEach(chk => chk.checked = false);
-        document.querySelector('input[name="data_scope"][value="OWN"]').checked = true;
         
         if (res.success && res.data) {
-           var m = res.data.modules;
+           var m = res.data.modules || "";
            if (m.includes("Dashboard")) document.getElementById('chk_dash').checked = true;
            
            if (m.includes("Courier-Send")) document.getElementById('chk_courier_send').checked = true;
@@ -1634,17 +1815,54 @@ if (uRole === 'system owner') {
            if (m.includes("Admin-Map")) document.getElementById('chk_admin_map').checked = true;
            if (m.includes("Admin-UserMgt") && m.includes("Admin-Map")) document.getElementById('chk_admin_main').checked = true;
            
-           if (res.data.scope) {
-              let scopeRadio = document.querySelector(`input[name="data_scope"][value="${res.data.scope}"]`);
-              if(scopeRadio) scopeRadio.checked = true;
-           }
-           
-           if (res.data.scope === 'SELECTED' && res.data.branches) {
-              var allowedBranches = res.data.branches.split(",");
-              var selectObj = document.getElementById('perm-branch-select');
-              for (var i = 0; i < selectObj.options.length; i++) {
-                 selectObj.options[i].selected = allowedBranches.includes(selectObj.options[i].value);
-              }
+           const setScopeData = (modPrefix, scopeObj) => {
+               if(!scopeObj) return;
+               var sEl = document.getElementById('scope_' + modPrefix);
+               if(sEl) {
+                   if(scopeObj.scope === 'SELECTED') scopeObj.scope = 'SELECTED_BRANCH';
+                   sEl.value = scopeObj.scope || "MY_REQUESTS";
+                   toggleModuleBranch(modPrefix);
+                   
+                   if(scopeObj.scope === 'SELECTED_BRANCH' && scopeObj.branches) {
+                       var allowedBranches = scopeObj.branches.split(",");
+                       var selectObj = document.getElementById('branch_' + modPrefix);
+                       if(selectObj) {
+                           for (var i = 0; i < selectObj.options.length; i++) {
+                              selectObj.options[i].selected = allowedBranches.includes(selectObj.options[i].value);
+                           }
+                       }
+                   } else if(scopeObj.scope === 'SELECTED_COMPANY' && scopeObj.companies) {
+                       var allowedComps = scopeObj.companies.split(",");
+                       var compObj = document.getElementById('company_' + modPrefix);
+                       if(compObj) {
+                           for (var i = 0; i < compObj.options.length; i++) {
+                              compObj.options[i].selected = allowedComps.includes(compObj.options[i].value);
+                           }
+                       }
+                   }
+               }
+           };
+
+           if(res.data.moduleScopes) {
+               try {
+                   var parsedScopes = JSON.parse(res.data.moduleScopes);
+                   setScopeData('courier', parsedScopes.courier);
+                   setScopeData('rmv', parsedScopes.rmv);
+                   setScopeData('val', parsedScopes.valuation);
+                   setScopeData('admin', parsedScopes.admin);
+                   setScopeData('cr', parsedScopes.cr);
+               } catch(e){}
+           } else {
+               var oldScope = res.data.scope || "MY_REQUESTS";
+               ['courier', 'rmv', 'val', 'cr'].forEach(m => {
+                   var sEl = document.getElementById('scope_' + m);
+                   if(sEl) {
+                      sEl.value = oldScope === "OWN" ? "BRANCH_MANAGER" : oldScope;
+                      toggleModuleBranch(m);
+                   }
+               });
+               var adEl = document.getElementById('scope_admin');
+               if(adEl) adEl.value = oldScope === "ALL_COMPANIES" ? "ALL_COMPANIES" : (oldScope === "ALL" ? "ALL" : "BRANCH_MANAGER");
            }
 
            document.getElementById('perm-status-badge').innerText = res.data.status;
@@ -1654,7 +1872,6 @@ if (uRole === 'system owner') {
            btn.innerText = res.data.status === "Active" ? "Revoke Complete Access" : "Grant Access";
            btn.style.background = res.data.status === "Active" ? "#dc3545" : "#28a745";
         }
-        toggleBranchSelect();
       } catch (e) {
          document.getElementById('perm-status-badge').innerText = "Error Loading Data";
       }
@@ -1665,9 +1882,9 @@ if (uRole === 'system owner') {
        if(!user) return Swal.fire("Required", "Please select a user to update.", "warning");
        
        var modules = [];
-       const checkSub = (id, name) => { if(document.getElementById(id).checked) modules.push(name); };
+       const checkSub = (id, name) => { if(document.getElementById(id) && document.getElementById(id).checked) modules.push(name); };
        
-       if(document.getElementById('chk_dash').checked) modules.push("Dashboard");
+       if(document.getElementById('chk_dash') && document.getElementById('chk_dash').checked) modules.push("Dashboard");
        
        checkSub('chk_courier_send', "Courier-Send"); checkSub('chk_courier_action', "Courier-Action");
        checkSub('chk_rmv_req', "RMV-Request"); checkSub('chk_rmv_action', "RMV-Action");
@@ -1676,22 +1893,46 @@ if (uRole === 'system owner') {
        checkSub('chk_print_add', "Print-Add"); checkSub('chk_print_paper', "Print-Paper"); checkSub('chk_print_box', "Print-Box");
        checkSub('chk_admin_user', "Admin-UserMgt"); checkSub('chk_admin_map', "Admin-Map");
        
-       var scope = document.querySelector('input[name="data_scope"]:checked').value;
-       var branches = [];
-       if(scope === 'SELECTED') {
-          var selectObj = document.getElementById('perm-branch-select');
-          for (var i = 0; i < selectObj.options.length; i++) {
-             if (selectObj.options[i].selected) branches.push(selectObj.options[i].value);
-          }
-       }
+       var moduleScopes = {};
+       const getScopeData = (modPrefix) => {
+           var scopeSelect = document.getElementById('scope_' + modPrefix);
+           if(!scopeSelect) return null;
+           var scopeVal = scopeSelect.value;
+           if(scopeVal === 'SELECTED') scopeVal = 'SELECTED_BRANCH';
+           
+           var branches = [];
+           var companies = [];
+           
+           if(scopeVal === 'SELECTED_BRANCH') {
+              var branchObj = document.getElementById('branch_' + modPrefix);
+              if(branchObj) {
+                  for (var i = 0; i < branchObj.options.length; i++) {
+                     if (branchObj.options[i].selected) branches.push(branchObj.options[i].value);
+                  }
+              }
+           } else if(scopeVal === 'SELECTED_COMPANY') {
+              var compObj = document.getElementById('company_' + modPrefix);
+              if(compObj) {
+                  for (var i = 0; i < compObj.options.length; i++) {
+                     if (compObj.options[i].selected) companies.push(compObj.options[i].value);
+                  }
+              }
+           }
+           return { scope: scopeVal, branches: branches.join(","), companies: companies.join(",") };
+       };
+
+       moduleScopes.courier = getScopeData('courier');
+       moduleScopes.rmv = getScopeData('rmv');
+       moduleScopes.valuation = getScopeData('val');
+       moduleScopes.admin = getScopeData('admin');
+       moduleScopes.cr = getScopeData('cr');
        
        Swal.fire({ title: "Updating Permissions...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
        
        apiCall('saveUserPermissions', {
           username: user,
           modules: modules.join(","),
-          scope: scope,
-          branches: branches.join(",")
+          moduleScopes: JSON.stringify(moduleScopes)
        }).then(res => {
           if(res.success) { Swal.fire("Saved!", res.msg, "success"); } 
           else { Swal.fire("Error", res.error || res.msg || "Failed", "error"); }
@@ -1731,13 +1972,35 @@ if (uRole === 'system owner') {
       try {
           const res = await apiCall('getHomeDashboardData', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
           mapMarkers.forEach(m => rmvMap.removeLayer(m)); mapMarkers = []; 
+          
+          const addMarker = (lat, lng, color, popupHtml) => {
+              if (lat && lng && lat !== "Not Found" && lat !== "Location Blocked" && lat !== "Not Supported") { 
+                  var marker = L.marker([parseFloat(lat) + (Math.random()-0.5)*0.0003, parseFloat(lng) + (Math.random()-0.5)*0.0003], {
+                      icon: L.divIcon({className: 'custom-pin', html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:50%; border:2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`, iconSize: [16, 16]})
+                  }).addTo(rmvMap); 
+                  marker.bindPopup(popupHtml); 
+                  mapMarkers.push(marker); 
+              }
+          };
+
+          // Courier Locations
           res.data.courier.list.forEach(row => { 
-              if (row.lat && row.lng) { 
-                  var color = row.status.toLowerCase() === 'pending' ? '#0d6efd' : '#20c997'; 
-                  var marker = L.marker([parseFloat(row.lat) + (Math.random()-0.5)*0.0003, parseFloat(row.lng) + (Math.random()-0.5)*0.0003], {icon: L.divIcon({className: 'custom-pin', html: `<div style="background-color:${color}; width:16px; height:16px; border-radius:3px; border:2px solid white;"></div>`, iconSize: [16, 16]})}).addTo(rmvMap); 
-                  marker.bindPopup(`<b>📦 Courier: ${row.type}</b><br>ID: ${row.id}<br>Status: <b>${row.status}</b>`); mapMarkers.push(marker); 
-              } 
+              var color = row.status.toLowerCase() === 'pending' ? '#0d6efd' : '#20c997'; 
+              addMarker(row.lat, row.lng, color, `<b>📦 Courier</b><br>ID: ${row.id}<br>Status: <b>${row.status}</b>`);
           }); 
+
+          // RMV Locations
+          res.data.rmv.list.forEach(row => { 
+              var color = row.status.toLowerCase() === 'pending' ? '#6f42c1' : (row.status.toLowerCase() === 'approved' ? '#198754' : '#dc3545'); 
+              addMarker(row.lat, row.lng, color, `<b>🚗 RMV Request</b><br>ID: ${row.id}<br>Vehicle: ${row.vehicle}<br>Status: <b>${row.status}</b>`);
+          }); 
+          
+          // Valuation Locations
+          res.data.valuation.list.forEach(row => { 
+              var color = row.status.toLowerCase().includes('pending') ? '#fd7e14' : (row.status.toLowerCase() === 'approved' ? '#198754' : '#dc3545'); 
+              addMarker(row.lat, row.lng, color, `<b>📋 Valuation</b><br>Ref: ${row.refNo || row.vehNo}<br>Vehicle: ${row.vehNo}<br>Status: <b>${row.status}</b>`);
+          }); 
+
       } catch(e) { console.error("Map Error", e); }
     }
 
