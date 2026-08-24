@@ -879,6 +879,10 @@
           <p style="margin-bottom:15px; font-size:15px;"><strong>Vehicle:</strong> <span id="mod_veh" style="background:#2d2d2d; color:#fff; padding:5px 10px; border-radius:4px; font-weight:bold;"></span></p>
           <p style="margin-bottom:15px; font-size:15px;"><strong>Status:</strong> <span id="mod_status" style="padding:5px 10px; border-radius:4px; font-weight:bold;"></span></p>
           <p style="margin-bottom:15px; font-size:14px; color:#555;"><strong>Action By:</strong> <span id="mod_action_by">-</span></p>
+          
+          <!-- අලුතින් දැම්මේ මේ පේළියයි -->
+          <p id="mod_reject_reason" style="margin-bottom:15px; font-size:14px; color:#dc3545; display:none;"><strong>Reason:</strong> <span id="mod_reason_text"></span></p>
+          
           <div id="mod_action_btns" style="margin-top:auto;">
             <button onclick="processRmvApproval('Approved')" style="width:100%; padding:15px; background:#198754; color:#fff; border:none; border-radius:4px; margin-bottom:10px; cursor:pointer; font-weight:bold; font-size:15px;">Approve</button>
             <button onclick="processRmvApproval('Rejected')" style="width:100%; padding:15px; background:#dc3545; color:#fff; border:none; border-radius:4px; margin-bottom:10px; cursor:pointer; font-weight:bold; font-size:15px;">Reject</button>
@@ -901,7 +905,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbyEbDw3pcZdOSxyYxLLPnjyEa-AidH2TuLq2yuOtuG8fmNsCcC7950cW4ONWliiD4rZhQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbzR24pEGo5uUfw0_Mjc1d4x7muVbiD2s4Ehs3Ryc34dYhW0tRj0Trlesv5Vac4FpQIzNQ/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -1650,6 +1654,15 @@
       var badgeColor = item.status === 'Pending' ? '#ffc107' : (item.status === 'Approved' ? '#198754' : '#dc3545'); var textColor = item.status === 'Pending' ? '#000' : '#fff';
       document.getElementById('mod_status').innerText = item.status; document.getElementById('mod_status').style.background = badgeColor; document.getElementById('mod_status').style.color = textColor;
       document.getElementById('mod_action_by').innerText = item.approvedBy && item.approvedBy !== "-" ? item.approvedBy : "Not Actioned Yet";
+      
+      // Reject කරලා නම් හේතුව පෙන්වීම
+      if (item.status === 'Rejected' && item.remarks && item.remarks !== "") {
+          document.getElementById('mod_reject_reason').style.display = 'block';
+          document.getElementById('mod_reason_text').innerText = item.remarks;
+      } else {
+          document.getElementById('mod_reject_reason').style.display = 'none';
+      }
+
       if(item.status === 'Pending') document.getElementById('mod_action_btns').style.display = 'block'; else document.getElementById('mod_action_btns').style.display = 'none';
       resetRmvImg();
       
@@ -1661,13 +1674,45 @@
 
     function processRmvApproval(status) {
       var item = globalRmvData[currentRmvIndex];
-      Swal.fire({ title: 'Confirm Action', text: `Mark this request as ${status}?`, icon: 'warning', showCancelButton: true, confirmButtonColor: status === 'Approved' ? '#198754' : '#dc3545', confirmButtonText: `Yes, ${status} it!` }).then(async function(result) {
-        if (result.isConfirmed) {
-          document.getElementById('mod_action_btns').style.display = 'none'; Swal.fire({title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
+      
+      // Reject කරනවා නම් Text Box එකක් පෙන්නනවා
+      if (status === 'Rejected') {
+          Swal.fire({
+            title: 'Reject Request',
+            input: 'textarea',
+            inputLabel: 'Reason for rejection',
+            inputPlaceholder: 'Type your reason here...',
+            inputAttributes: { 'aria-label': 'Type your reason here' },
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, Reject it!',
+            preConfirm: (reason) => {
+                if (!reason) { Swal.showValidationMessage('Reason is required for rejection!'); }
+                return reason;
+            }
+          }).then(function(result) {
+            if (result.isConfirmed) { executeRMVUpdate(status, result.value); }
+          });
+      } else {
+          // Approve කරනවා නම් සාමාන්‍ය විදිහට Confirm කරනවා
+          Swal.fire({ title: 'Confirm Action', text: `Mark this request as Approved?`, icon: 'warning', showCancelButton: true, confirmButtonColor: '#198754', confirmButtonText: `Yes, Approve it!` }).then(function(result) {
+            if (result.isConfirmed) { executeRMVUpdate(status, ""); }
+          });
+      }
+      
+      // Backend එකට යවන function එක
+      async function executeRMVUpdate(actStatus, remarksText) {
+          document.getElementById('mod_action_btns').style.display = 'none'; 
+          Swal.fire({title: 'Updating...', allowOutsideClick: false, didOpen: () => Swal.showLoading()});
           try {
-             const res = await apiCall('updateRMVStatus', { reqId: item.reqId, actionBy: currentUser.user, status: status });
-             globalRmvData[currentRmvIndex].status = status; globalRmvData[currentRmvIndex].approvedBy = currentUser.user; 
+             const res = await apiCall('updateRMVStatus', { reqId: item.reqId, actionBy: currentUser.user, status: actStatus, remarks: remarksText });
+             globalRmvData[currentRmvIndex].status = actStatus; 
+             globalRmvData[currentRmvIndex].approvedBy = currentUser.user; 
+             globalRmvData[currentRmvIndex].remarks = remarksText; 
+             
              var nextIndex = -1; for(var i = 0; i < globalRmvData.length; i++) { if(globalRmvData[i].status === 'Pending') { nextIndex = i; break; } }
+             
              if(nextIndex !== -1) { 
                  Swal.fire({title: "Success", text: (res.data || res.success) + " Loading next...", icon: "success", timer: 1200, showConfirmButton: false});
                  setTimeout(() => openRmvModal(nextIndex), 1200); 
@@ -1676,8 +1721,7 @@
                  document.getElementById('rmv-approval-modal').style.display = 'none'; loadRMVData(); loadDashboardStats();
              }
           } catch(e) { Swal.fire("Error", "Could not update status", "error"); }
-        }
-      });
+      }
     }
 
     async function createUserAdmin() {
