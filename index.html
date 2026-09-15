@@ -1360,9 +1360,23 @@
                       let compressed = await compressImage(f.file, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
                     }
                     
-                    let result = await apiCall('uploadValuationImage', { data: { base64: base64Str, type: typeStr, name: nameStr, key: f.inputName, vehicleNo: formData.vehicleNo } }); 
-                    if (result && result.success) { formData[result.key] = result.url; } else { throw new Error("Failed to upload"); } 
-                  }
+                    // --- අලුත් ImgBB Upload Code එක ---
+const imgbbFormData = new FormData();
+imgbbFormData.append("image", base64Str);
+
+const imgbbRes = await fetch("https://api.imgbb.com/1/upload?key=ad4610425eecdef989e38d0e3a3564e2", {
+    method: "POST",
+    body: imgbbFormData
+});
+const imgbbData = await imgbbRes.json();
+
+if (imgbbData.success) { 
+    // ImgBB එකෙන් දෙන Direct URL එක ෆෝම් එකට සේව් කරනවා
+    formData[f.inputName] = imgbbData.data.url; 
+} else { 
+    throw new Error("Image Upload Failed"); 
+}
+// -----------------------------------
                   vbtn.innerText = "Saving Request to Database...";
                   const serverRes = await apiCall('submitValuationForm', { data: formData });
                   if(serverRes.success) { Swal.fire("Success", serverRes.result, "success"); e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); loadDashboardStats(); switchView('dashboard', null); } 
