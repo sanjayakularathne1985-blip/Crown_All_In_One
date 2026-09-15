@@ -645,7 +645,7 @@
               <label style="font-weight:bold; display:block; margin-bottom:5px;">Vehicle Number (වාහන අංකය)</label>
               <input type="text" name="vehicleNo" placeholder="EX: WP CAB-1234" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ccc; border-radius:4px; outline:none;" required>
               <label style="font-weight:bold; display:block; margin-bottom:5px;">CR Book Upload (පොතේ පිටපත)</label>
-              <input type="file" name="rmv_cr_file" accept=".pdf,image/*" style="width:100%; padding:10px; margin-bottom:25px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9; outline:none;" required>
+              <input type="file" name="rmv_cr_file" accept="image/*" style="width:100%; padding:10px; margin-bottom:25px; border:1px solid #ccc; border-radius:4px; background:#f9f9f9; outline:none;" required>
               <button type="submit" id="rmvSubmitBtn" style="width:100%; padding:15px; background:#800000; color:#fff; border:none; border-radius:5px; font-size:16px; font-weight:bold; cursor:pointer;">Submit Request & Capture Location 📍</button>
             </form>
           </div>
@@ -706,16 +706,16 @@
               </div>
               <h3 style="color:#28a745; border-left:4px solid #28a745; padding-left:10px; margin-top:20px;">2. Inspection Photos</h3>
               <div class="photo-grid">
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Front View *</label><input type="file" name="img_front" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Back View *</label><input type="file" name="img_back" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>CR Copy *</label><input type="file" name="img_cr" id="cr_file_input" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Chassis Plate *</label><input type="file" name="img_chassis" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Engine Bay *</label><input type="file" name="img_engine" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Meter *</label><input type="file" name="img_meter" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Inspection Sheet *</label><input type="file" name="img_sheet" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Office View*</label><input type="file" name="img_inside" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Tyre Condition</label><input type="file" name="img_tyre" accept="image/*,application/pdf" onchange="previewImage(this)"></div>
-                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View*</label><input type="file" name="img_customer" accept="image/*,application/pdf" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Front View *</label><input type="file" name="img_front" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Back View *</label><input type="file" name="img_back" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>CR Copy *</label><input type="file" name="img_cr" id="cr_file_input" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Chassis Plate *</label><input type="file" name="img_chassis" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Engine Bay *</label><input type="file" name="img_engine" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Meter *</label><input type="file" name="img_meter" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Inspection Sheet *</label><input type="file" name="img_sheet" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Office View*</label><input type="file" name="img_inside" accept="image/*" onchange="previewImage(this)" required></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Tyre Condition</label><input type="file" name="img_tyre" accept="image/*" onchange="previewImage(this)"></div>
+                <div class="photo-box"><span class="clear-btn" onclick="clearImage(this)">×</span><label>Customer View*</label><input type="file" name="img_customer" accept="image/*" onchange="previewImage(this)" required></div>
               </div>
               <button type="submit" id="valSubmitBtn" class="btn-submit">Submit Valuation Request</button>
             </form>
@@ -1352,31 +1352,29 @@
                   for (let i = 0; i < filesToUpload.length; i++) {
                     let f = filesToUpload[i]; vbtn.innerText = `Uploading File ${i+1} of ${filesToUpload.length}...`;
                     await new Promise(r => setTimeout(r, 100)); 
-                    let base64Str, typeStr, nameStr;
-                    if (f.file.type === "application/pdf") { 
-                      let b64 = await new Promise((res2, rej) => { let fr = new FileReader(); fr.onload = ev => res2(ev.target.result); fr.onerror = err => rej(err); fr.readAsDataURL(f.file); }); 
-                      base64Str = b64.split(',')[1]; typeStr = 'application/pdf'; nameStr = f.file.name; 
-                    } else { 
-                      let compressed = await compressImage(f.file, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
-                    }
                     
-                    // --- අලුත් ImgBB Upload Code එක ---
-const imgbbFormData = new FormData();
-imgbbFormData.append("image", base64Str);
+                    let compressed = await compressImage(f.file, 800, 0.6); 
+                    let base64Str = compressed.data; 
 
-const imgbbRes = await fetch("https://api.imgbb.com/1/upload?key=ad4610425eecdef989e38d0e3a3564e2", {
-    method: "POST",
-    body: imgbbFormData
-});
-const imgbbData = await imgbbRes.json();
+                    // --- ImgBB Upload Code ---
+                    const imgbbFormData = new FormData();
+                    imgbbFormData.append("image", base64Str);
 
-if (imgbbData.success) { 
-    // ImgBB එකෙන් දෙන Direct URL එක ෆෝම් එකට සේව් කරනවා
-    formData[f.inputName] = imgbbData.data.url; 
-} else { 
-    throw new Error("Image Upload Failed"); 
-}
-// -----------------------------------
+                    const imgbbRes = await fetch("https://api.imgbb.com/1/upload?key=ad4610425eecdef989e38d0e3a3564e2", {
+                        method: "POST",
+                        body: imgbbFormData
+                    });
+                    const imgbbData = await imgbbRes.json();
+
+                    if (imgbbData.success) { 
+                        // Save ImgBB URL
+                        formData[f.inputName] = imgbbData.data.url; 
+                    } else { 
+                        throw new Error("Image Upload Failed"); 
+                    }
+                    // -------------------------
+                  }
+                  
                   vbtn.innerText = "Saving Request to Database...";
                   const serverRes = await apiCall('submitValuationForm', { data: formData });
                   if(serverRes.success) { Swal.fire("Success", serverRes.result, "success"); e.target.reset(); document.querySelectorAll('.photo-box').forEach(b => b.style.backgroundImage = 'none'); loadDashboardStats(); switchView('dashboard', null); } 
@@ -1401,15 +1399,25 @@ if (imgbbData.success) {
                 const formData = { vehicleNo: e.target.vehicleNo.value, email: currentUser.email, user: currentUser.user, branch: currentUser.branch, lat: lat, lng: lng };
                 let fileInput = e.target.querySelector('input[type="file"]');
                 if(fileInput.files.length > 0) {
-                  let f = fileInput.files[0]; let base64Str, typeStr, nameStr;
-                  if (f.type === "application/pdf") { 
-                    let b64 = await new Promise((res2, rej) => { let fr = new FileReader(); fr.onload = ev => res2(ev.target.result); fr.onerror = err => rej(err); fr.readAsDataURL(f); }); 
-                    base64Str = b64.split(',')[1]; typeStr = 'application/pdf'; nameStr = f.name; 
+                  let f = fileInput.files[0]; 
+                  
+                  let compressed = await compressImage(f, 800, 0.6); 
+                  let base64Str = compressed.data; 
+
+                  const imgbbFormData = new FormData();
+                  imgbbFormData.append("image", base64Str);
+
+                  const imgbbRes = await fetch("https://api.imgbb.com/1/upload?key=ad4610425eecdef989e38d0e3a3564e2", {
+                      method: "POST",
+                      body: imgbbFormData
+                  });
+                  const imgbbData = await imgbbRes.json();
+
+                  if (imgbbData.success) { 
+                      formData.crBookUrl = imgbbData.data.url; 
                   } else { 
-                    let compressed = await compressImage(f, 800, 0.6); base64Str = compressed.data; typeStr = compressed.type; nameStr = compressed.name; 
+                      throw new Error("Failed to upload CR Book to ImgBB"); 
                   }
-                  let result = await apiCall('uploadValuationImage', { data: { base64: base64Str, type: typeStr, name: nameStr, key: 'rmv_cr', vehicleNo: formData.vehicleNo } }); 
-                  if (result && result.success) { formData.crBookUrl = result.url; } else { throw new Error("Failed to upload CR Book"); }
                 } else { throw new Error("CR Book is required!"); }
                 
                 rbtn.innerText = "Saving Request to Database...";
@@ -2332,7 +2340,7 @@ if (imgbbData.success) {
           if(req.imgEngine !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgEngine)}')"><img src="${getImgUrl(req.imgEngine)}" onerror="${errImg}"><div class="admin-photo-label">Engine</div></div>`;
           if(req.imgMeter !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgMeter)}')"><img src="${getImgUrl(req.imgMeter)}" onerror="${errImg}"><div class="admin-photo-label">Meter</div></div>`;
           if(req.imgSheet !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgSheet)}')"><img src="${getImgUrl(req.imgSheet)}" onerror="${errImg}"><div class="admin-photo-label">Inspection Sheet</div></div>`;
-          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Office View</div></div>`;
+          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Office View</div></div>`;
           if(req.imgTyre !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgTyre)}')"><img src="${getImgUrl(req.imgTyre)}" onerror="${errImg}"><div class="admin-photo-label">Tyre Condition</div></div>`;
           if(req.imgCustomer !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgCustomer)}')"><img src="${getImgUrl(req.imgCustomer)}" onerror="${errImg}"><div class="admin-photo-label">Customer View</div></div>`;
 
