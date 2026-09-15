@@ -270,37 +270,12 @@
             <button style="background: #0d6efd; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;" onclick="loadDashboardStats()">Refresh Data</button>
           </div>
 
-          <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end; background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd;">
-            <div style="flex:1;">
-              <label style="font-size:12px;font-weight:bold;color:#555;">From Date</label>
-              <input type="date" id="dashFromDate" onchange="filterDashboardTables()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
-            </div>
-            <div style="flex:1;">
-              <label style="font-size:12px;font-weight:bold;color:#555;">To Date</label>
-              <input type="date" id="dashToDate" onchange="filterDashboardTables()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
-            </div>
-            <div style="flex:1;">
-              <label style="font-size:12px;font-weight:bold;color:#555;">Search (ID / Vehicle No)</label>
-              <input type="text" id="dashSearch" onkeyup="filterDashboardTables()" placeholder="Search..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
-            </div>
-            <div>
-              <button onclick="clearDashFilters()" style="background:#6c757d; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Clear</button>
-            </div>
-          </div>
-
           <div id="dash-courier-section">
             <h3 class="section-title">Courier Portal Overview</h3>
             <div class="admin-cards">
               <div class="a-card bg-blue"><h3>Total Parcels</h3><div class="a-val" id="dash-c-tot">0</div></div>
               <div class="a-card bg-yellow"><h3>Pending</h3><div class="a-val" id="dash-c-pen">0</div></div>
               <div class="a-card bg-green"><h3>Delivered</h3><div class="a-val" id="dash-c-del">0</div></div>
-            </div>
-            <h4 style="color:#555; margin-top:20px; margin-bottom:10px;">Courier Tracking</h4>
-            <div class="table-container">
-              <table id="dashMasterTable" class="blue-header">
-                <thead><tr><th>Company</th><th>ID</th><th>Type</th><th>Route</th><th>Vehicle</th><th>Sent Date</th><th>Received Date</th><th>Sender</th><th>Receiver</th><th>Status</th></tr></thead>
-                <tbody></tbody>
-              </table>
             </div>
           </div>
 
@@ -312,13 +287,6 @@
               <div class="a-card bg-green"><h3>Approved</h3><div class="a-val" id="dash-r-app">0</div></div>
               <div class="a-card bg-red"><h3>Rejected</h3><div class="a-val" id="dash-r-rej">0</div></div>
             </div>
-            <h4 style="color:#555; margin-top:20px; margin-bottom:10px;">RMV Registration Tracking</h4>
-            <div class="table-container">
-              <table id="dashRmvTable" class="blue-header">
-                <thead><tr><th>Company</th><th>Date & Time</th><th>Req ID</th><th>Vehicle No</th><th>Branch</th><th>Action By</th><th>Status</th><th>CR Book</th></tr></thead>
-                <tbody></tbody>
-              </table>
-            </div>
           </div>
 
           <div id="dash-val-section">
@@ -328,24 +296,6 @@
               <div class="a-card bg-yellow"><h3>Pending Approvals</h3><div class="a-val" id="dash-v-pen">0</div></div>
               <div class="a-card bg-green"><h3>Approved Reports</h3><div class="a-val" id="dash-v-app">0</div></div>
               <div class="a-card bg-red"><h3>Rejected</h3><div class="a-val" id="dash-v-rej">0</div></div>
-            </div>
-            <h4 style="color:#555; margin-top:20px; margin-bottom:10px;">Global Recent Activity (Valuations)</h4>
-            <div class="table-container">
-              <table id="dashValTable" class="blue-header">
-                <thead>
-                  <tr>
-                  <th>Company</th>
-                  <th>Date</th>
-                  <th>Vehicle No</th>
-                  <th>Make & Model</th>
-                  <th>Market Value</th>
-                  <th>Sale Value</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
             </div>
           </div>
           
@@ -657,7 +607,10 @@
             <span style="background:#ffc107; color:black; padding:5px 15px; border-radius:4px; font-weight:bold; font-size:14px;">Administrator</span>
           </div>
           <div style="background:#fff; padding:20px; border:1px solid #ddd; border-top:none;">
-             <h3 style="color:#800000; margin-bottom:20px;">All Registration Requests</h3>
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:#800000; margin:0;">All Registration Requests</h3>
+                <button onclick="loadRMVData()" style="padding: 8px 15px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Refresh List</button>
+             </div>
              <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end;">
                <div style="flex:1;"><label style="font-size:12px;font-weight:bold;color:#555;">Search</label><input type="text" id="rmvSearch" onkeyup="filterRmvTable()" placeholder="Search ID or Vehicle..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;"></div>
                <div style="flex:1;"><label style="font-size:12px;font-weight:bold;color:#555;">Status</label>
@@ -724,11 +677,13 @@
 
         <div id="view-val-admin" class="view-section" style="display: none;">
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">Pending Valuation Approvals</h2>
-          <div id="admin-req-list">Loading...</div>
+          <button onclick="loadPendingValuations()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh List</button>
+          <div id="admin-req-list"></div>
         </div>
 
         <div id="view-val-history" class="view-section" style="display: none;">
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">Valuation History & Reports</h2>
+          <button onclick="loadValuationHistory()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh List</button>
           
           <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end; background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd;">
             <div style="flex:1;">
@@ -880,7 +835,6 @@
           <p style="margin-bottom:15px; font-size:15px;"><strong>Status:</strong> <span id="mod_status" style="padding:5px 10px; border-radius:4px; font-weight:bold;"></span></p>
           <p style="margin-bottom:15px; font-size:14px; color:#555;"><strong>Action By:</strong> <span id="mod_action_by">-</span></p>
           
-          <!-- අලුතින් දැම්මේ මේ පේළියයි -->
           <p id="mod_reject_reason" style="margin-bottom:15px; font-size:14px; color:#dc3545; display:none;"><strong>Reason:</strong> <span id="mod_reason_text"></span></p>
           
           <div id="mod_action_btns" style="margin-top:auto;">
@@ -1482,6 +1436,7 @@
       models.forEach(m => modelSelect.add(new Option(m, m)));
       modelSelect.disabled = false;
     }
+    
     async function loadDashboardStats() {
       if(!currentUser.role) return;
       try {
@@ -1501,42 +1456,6 @@
         if(document.getElementById('dash-v-pen')) document.getElementById('dash-v-pen').innerText = data.valuation.pending;
         if(document.getElementById('dash-v-app')) document.getElementById('dash-v-app').innerText = data.valuation.approved;
         if(document.getElementById('dash-v-rej')) document.getElementById('dash-v-rej').innerText = data.valuation.rejected;
-
-        var cTbody = document.querySelector("#dashMasterTable tbody");
-        if(cTbody) {
-            cTbody.innerHTML = "";
-            if(data.courier.list.length === 0) cTbody.innerHTML = "<tr><td colspan='10' style='text-align:center;'>No Recent Activity</td></tr>";
-            data.courier.list.forEach(r => {
-              var badge = r.status.toLowerCase() === 'pending' ? '<span class="badge-pending">Pending</span>' : '<span class="badge-accepted">Delivered</span>';
-              cTbody.innerHTML += `<tr><td><b style="color:#e67e22;">${r.company}</b></td><td>${r.id}</td><td>${r.type}</td><td>${r.route}</td><td>${r.vehicle}</td><td>${r.sentDate}</td><td>${r.recDate}</td><td>${r.sender}</td><td>${r.receiver}</td><td>${badge}</td></tr>`;
-            });
-        }
-
-        var rTbody = document.querySelector("#dashRmvTable tbody");
-        if(rTbody) {
-            rTbody.innerHTML = "";
-            if(data.rmv.list.length === 0) rTbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No Recent Activity</td></tr>";
-            data.rmv.list.forEach(r => {
-              var badge = r.status.toLowerCase() === 'pending' ? '<span class="badge-pending">Pending</span>' : (r.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : '<span class="badge-rejected">Rejected</span>');
-              var fileLink = r.fileUrl !== "No File" ? `<a href="${r.fileUrl}" target="_blank">View CR</a>` : "-";
-              rTbody.innerHTML += `<tr><td><b style="color:#e67e22;">${r.company}</b></td><td>${r.date}</td><td>${r.id}</td><td>${r.vehicle}</td><td>${r.branch}</td><td>${r.approvedBy}</td><td>${badge}</td><td>${fileLink}</td></tr>`;
-            });
-        }
-
-        var vTbody = document.querySelector("#dashValTable tbody");
-        if(vTbody) {
-            vTbody.innerHTML = "";
-            globalDashValData = data.valuation.list; 
-            if(data.valuation.list.length === 0) vTbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No Recent Activity</td></tr>";
-            
-            data.valuation.list.forEach((r, idx) => {
-              var badge = r.status.toLowerCase().includes('pending') ? '<span class="badge-pending">Pending Approval</span>' : (r.status.toLowerCase() === 'approved' ? '<span class="badge-accepted">Approved</span>' : '<span class="badge-rejected">Rejected</span>');
-              var viewBtn = `<button onclick="openValViewModal(${idx}, 'dash')" style="background:#f39c12; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-weight:bold; margin-right:5px; font-size:13px;">View</button>`;
-              var pdfBtn = r.pdf ? `<a href="${r.pdf}" target="_blank" style="background:#0d6efd; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:13px; font-weight:bold; display:inline-block;">PDF</a>` : "";
-              
-              vTbody.innerHTML += `<tr><td><b style="color:#e67e22;">${r.company}</b></td><td>${r.date}</td><td><b>${r.vehNo}</b></td><td>${r.makeModel}</td><td>${r.marketVal}</td><td>${r.saleVal}</td><td>${badge}</td><td>${viewBtn}${pdfBtn}</td></tr>`;
-            });
-        }
 
         if(document.getElementById('dash-cru-pen') && data.crupload) document.getElementById('dash-cru-pen').innerText = data.crupload.pending;
         if(document.getElementById('dash-cru-com') && data.crupload) document.getElementById('dash-cru-com').innerText = data.crupload.completed;
@@ -1622,11 +1541,11 @@
           tbody.innerHTML += `<tr style="border-bottom:1px solid #eee;"><td><b style="color:#e67e22;">${row.company}</b></td><td>${row.date}</td><td><b>${row.reqId}</b></td><td><span style="background:#2d2d2d; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold;">${row.vehicleNo}</span></td><td>${row.branch}</td><td>${actByText}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
         }
         
-        // ඩේටා ලෝඩ් වුණාට පස්සේ ඔටෝම Pending ෆිල්ටර් එක වැඩ කරන්න මේක දාන්න
         filterRmvTable();
 
       } catch(e) { console.error(e); }
     }
+    
     function filterRmvTable() {
       var input = document.getElementById("rmvSearch").value.toLowerCase();
       var status = document.getElementById("rmvStatusFilter").value.toLowerCase();
@@ -1647,6 +1566,7 @@
       }
     }
     function clearRmvFilters() { document.getElementById("rmvSearch").value = ""; document.getElementById("rmvStatusFilter").value = "Pending"; document.getElementById("rmvFromDate").value = ""; document.getElementById("rmvToDate").value = ""; filterRmvTable(); }    
+    
     var rmvScale = 1, rmvRotate = 0, rmvPanning = false, rmvPx = 0, rmvPy = 0, rmvSx = 0, rmvSy = 0;
     var rContainer = document.getElementById("img_container"); var rImg = document.getElementById("mod_img");
 
@@ -2130,14 +2050,20 @@
 
       if(viewId === 'dashboard') loadDashboardStats();
       if(viewId === 'courier-new') { generateAutoId(); }
-      if(viewId === 'courier-admin') loadCourierData();
-      if(viewId === 'rmv-admin') { loadRMVData(); }
-      if(viewId === 'val-admin') { loadPendingValuations(); }
-      if(viewId === 'val-history') { loadValuationHistory(); }
       if(viewId === 'live-map') { setTimeout(() => { if(typeof initMap === 'function') initMap(); else { if(rmvMap) rmvMap.invalidateSize(); loadMapData(); } }, 300); }
       if(viewId === 'cr-upload-new') { loadPendingCRList(); }
-      if(viewId === 'cr-upload-history') { loadCRHistory(); }
-      if(viewId === 'cr-upload-pending') { loadPendingCRTable(); }
+
+      const clearTbody = (tableId) => {
+          let tb = document.querySelector("#" + tableId + " tbody");
+          if(tb) tb.innerHTML = "<tr><td colspan='10' style='text-align:center; padding:20px; color:#555;'>Please click 'Refresh List' or use the Filter to load data.</td></tr>";
+      };
+
+      if(viewId === 'courier-admin') clearTbody("parcelTable");
+      if(viewId === 'rmv-admin') clearTbody("rmvTable");
+      if(viewId === 'val-admin') { document.getElementById("admin-req-list").innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>Please click 'Refresh List' to load pending approvals.</div>"; }
+      if(viewId === 'val-history') clearTbody("valHistoryTable");
+      if(viewId === 'cr-upload-history') clearTbody("crHistoryTable");
+      if(viewId === 'cr-upload-pending') clearTbody("crPendingTable");
     }
 
     var modal = document.getElementById("imgModal"), img = document.getElementById("fullImage"), container = document.getElementById("modalContainer"); 
@@ -2173,7 +2099,7 @@
                  var emailMsg = res.email === "Sent" ? " & Email Sent!" : " (No Email Sent)";
                  Swal.fire("Success", "Package Dispatched" + emailMsg, "success");
                  document.getElementById('p_vehicle').value = ""; document.getElementById('p_remarks').value = "";
-                 generateAutoId(); loadDashboardStats(); loadCourierData();
+                 generateAutoId(); loadDashboardStats();
              } else { Swal.fire("Error", res.msg || "Failed", "error"); }
          } catch(e) { Swal.fire("Error", "Network Error", "error"); }
          btn.disabled = false; btn.innerText = "Dispatch Package";
@@ -2206,7 +2132,6 @@
         
         if(!hasData) { tbody.innerHTML = "<tr><td colspan='8' style='text-align:center;'>No Couriers Found for your branch.</td></tr>"; }
         
-        // ඩේටා ලෝඩ් වුණාට පස්සේ ඔටෝම Pending ෆිල්ටර් එක වැඩ කරන්න මේක දාන්න
         filterCourierTable(); 
         
       } catch(e) { 
@@ -2340,7 +2265,7 @@
           if(req.imgEngine !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgEngine)}')"><img src="${getImgUrl(req.imgEngine)}" onerror="${errImg}"><div class="admin-photo-label">Engine</div></div>`;
           if(req.imgMeter !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgMeter)}')"><img src="${getImgUrl(req.imgMeter)}" onerror="${errImg}"><div class="admin-photo-label">Meter</div></div>`;
           if(req.imgSheet !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgSheet)}')"><img src="${getImgUrl(req.imgSheet)}" onerror="${errImg}"><div class="admin-photo-label">Inspection Sheet</div></div>`;
-          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Office View</div></div>`;
+          if(req.imgInside !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgInside)}')"><img src="${getImgUrl(req.imgInside)}" onerror="${errImg}"><div class="admin-photo-label">Office View</div></div>`;
           if(req.imgTyre !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgTyre)}')"><img src="${getImgUrl(req.imgTyre)}" onerror="${errImg}"><div class="admin-photo-label">Tyre Condition</div></div>`;
           if(req.imgCustomer !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgCustomer)}')"><img src="${getImgUrl(req.imgCustomer)}" onerror="${errImg}"><div class="admin-photo-label">Customer View</div></div>`;
 
@@ -2399,26 +2324,6 @@
 
     function clearValFilters() { document.getElementById("valFromDate").value = ""; document.getElementById("valToDate").value = ""; document.getElementById("valSearch").value = ""; filterValHistoryTable(); }
 
-    function filterDashboardTables() {
-        var fDate = document.getElementById("dashFromDate").value; var tDate = document.getElementById("dashToDate").value; var search = document.getElementById("dashSearch").value.toLowerCase();
-        
-        var tables = [ {id: "dashMasterTable", dateCol: 5, searchCols: [1, 4]}, {id: "dashRmvTable", dateCol: 1, searchCols: [2, 3]}, {id: "dashValTable", dateCol: 1, searchCols: [2]} ];
-        tables.forEach(tbl => {
-            var tbody = document.querySelector("#" + tbl.id + " tbody"); if(!tbody) return; var tr = tbody.getElementsByTagName("tr");
-            for (var i = 0; i < tr.length; i++) {
-                var tds = tr[i].getElementsByTagName("td");
-                if (tds.length > 1) { 
-                    var rowDaTestr = tds[tbl.dateCol].textContent || tds[tbl.dateCol].innerText; var rowDate = new Date(rowDaTestr.split(" ")[0]); var matchSearch = false;
-                    tbl.searchCols.forEach(colIdx => { if (tds[colIdx] && tds[colIdx].innerText.toLowerCase().indexOf(search) > -1) { matchSearch = true; } });
-                    var matchDate = true; if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; } if (tDate) { var toDateObj = new Date(tDate); toDateObj.setHours(23, 59, 59, 999); if (rowDate > toDateObj) matchDate = false; }
-                    tr[i].style.display = (matchSearch && matchDate) ? "" : "none";
-                }
-            }
-        });
-    }
-    
-    function clearDashFilters() { document.getElementById("dashFromDate").value = ""; document.getElementById("dashToDate").value = ""; document.getElementById("dashSearch").value = ""; filterDashboardTables(); }
-
     function filterCourierTable() {
         var fDate = document.getElementById("courierFromDate").value; var tDate = document.getElementById("courierToDate").value; var search = document.getElementById("courierSearch").value.toLowerCase(); var status = document.getElementById("courierStatusFilter").value.toLowerCase(); var tr = document.getElementById("parcelTable").getElementsByTagName("tr");
         for (var i = 1; i < tr.length; i++) {
@@ -2433,9 +2338,6 @@
         }
     }
     function clearCourierFilters() { document.getElementById("courierFromDate").value = ""; document.getElementById("courierToDate").value = ""; document.getElementById("courierSearch").value = ""; document.getElementById("courierStatusFilter").value = "Pending"; filterCourierTable(); }  
-    // ==========================================
-    // CR UPLOAD MODULE FRONTEND LOGIC
-    // ==========================================
     
     var globalPendingCR = [];
 
