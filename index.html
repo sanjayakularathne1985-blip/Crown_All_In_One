@@ -389,9 +389,15 @@
               </div>
 
               <div id="perm-details-section" style="display:none; margin-top:20px;">
-                 <div style="margin-bottom: 20px; font-size: 14px;">
-                    <strong>Account Status: </strong> 
-                    <span id="perm-status-badge" style="background:#28a745; color:white; padding:4px 12px; border-radius:15px; font-weight:bold; font-size:12px;">Active</span>
+                 <div style="margin-bottom: 20px; font-size: 14px; display:flex; gap:20px; align-items:center; flex-wrap:wrap;">
+                    <div>
+                       <strong>Account Status: </strong> 
+                       <span id="perm-status-badge" style="background:#28a745; color:white; padding:4px 12px; border-radius:15px; font-weight:bold; font-size:12px;">Active</span>
+                    </div>
+                    <div>
+                       <strong>User Role: </strong>
+                       <span id="perm-role-badge" style="background:#0d6efd; color:white; padding:4px 12px; border-radius:15px; font-weight:bold; font-size:12px;">User</span>
+                    </div>
                  </div>
                  
                  <div class="perm-grid">
@@ -428,7 +434,7 @@
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_rmv_main" onchange="toggleSub('chk_rmv_main', 'sub_rmv')"> <i class="fas fa-car" style="width:20px;"></i> RMV Confirmation</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_req"> Confirmation Request</label>
-                               <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_action"> Action Portal</label>
+                               <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_action"> Action Portal <small id="note_rmv_action" style="color:#c62828; font-weight:600; margin-left:5px;"></small></label>
                                
                                <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
                                 <select id="scope_rmv" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('rmv')">
@@ -448,7 +454,7 @@
                            <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_val_main" onchange="toggleSub('chk_val_main', 'sub_val')"> <i class="fas fa-file-invoice-dollar" style="width:20px;"></i> Valuation Portal</label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_new"> New Valuation</label>
-                               <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_pend"> Pending Approvals</label>
+                               <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_pend"> Pending Approvals <small id="note_val_pend" style="color:#c62828; font-weight:600; margin-left:5px;"></small></label>
                                <label class="perm-label"><input type="checkbox" class="sub_val" id="chk_val_hist"> Valuation History</label>
                                
                                <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
@@ -466,7 +472,7 @@
                        
                        <!-- SYSTEM ADMIN -->
                        <div style="margin-bottom: 15px; border: 1px solid #e0e0e0; padding: 10px; border-radius: 5px; background: #fff;">
-                           <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_admin_main" onchange="toggleSub('chk_admin_main', 'sub_admin')"> <i class="fas fa-shield-alt" style="width:20px;"></i> System Admin</label>
+                           <label class="perm-label" style="font-weight:bold; color:#0d6efd;"><input type="checkbox" id="chk_admin_main" onchange="toggleSub('chk_admin_main', 'sub_admin')"> <i class="fas fa-shield-alt" style="width:20px;"></i> System Admin <small id="note_admin_main" style="color:#c62828; font-weight:600; margin-left:5px;"></small></label>
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_admin" id="chk_admin_user"> User Maintenance</label>
                                <label class="perm-label"><input type="checkbox" class="sub_admin" id="chk_admin_map"> Live Request Map</label>
@@ -944,7 +950,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbwbt1MVKvbX6C35J24T-1tG4Du01tap6Ep3AXsOVRzMs22tmGxsgMHGtz21k9j_AEJ1Pg/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxjYfv0vaxxAc9QTnLodT7l6hGhs7qPXpbPbyXEgH_pjMDRAGcnr5Fp6pWU6V-8I5Pz/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -1241,7 +1247,7 @@
 
             var roleSelect = document.getElementById('new-user-role');
             if (roleSelect) {
-                roleSelect.innerHTML = '<option value="User">User</option>';
+                roleSelect.innerHTML = '<option value="User">User</option><option value="rmv branch">RMV Branch User</option><option value="rmv approval">RMV Request Approval User</option><option value="valuation admin">Valuation Admin</option>';
             }
         }
 
@@ -1318,12 +1324,18 @@
         });
 
         // ========================================================
-        // DYNAMIC PERMISSION CONTROL LOGIC
+        // DYNAMIC PERMISSION CONTROL LOGIC (WITH STRICT ROLE RULES)
         // ========================================================
         var modules = res.allowedModules || "";
+        var uRoleNorm = uRole.trim();
+        var isValApproverRole = (uRoleNorm === 'valuation admin' || uRoleNorm === 'system owner');
+        var isRmvApproverRole = (uRoleNorm === 'rmv approval' || uRoleNorm === 'rmv request approval user' || uRoleNorm === 'system owner');
+        var isSysAdminAllowedRole = (uRoleNorm !== 'user');
         
-        if (!modules && (uRole === 'super admin' || uRole === 'admin' || uRole === 'system owner')) {
+        if (!modules && uRoleNorm === 'system owner') {
             modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,RMV-Action,Valuation-New,Valuation-Pending,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
+        } else if (!modules && (uRoleNorm === 'super admin' || uRoleNorm === 'admin')) {
+            modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,Valuation-New,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
         } else if (!modules) {
             modules = "Dashboard"; 
         }
@@ -1341,23 +1353,30 @@
         setVisibility('[onclick="switchView(\'courier-admin\', this)"]', modules.includes("Courier-Action"));
         setVisibility('#dash-courier-section', hasCourier, 'block');
 
-        let hasRmv = modules.includes("RMV-Request") || modules.includes("RMV-Action");
+        let allowRmvReq = modules.includes("RMV-Request");
+        let allowRmvAct = modules.includes("RMV-Action") && isRmvApproverRole;
+        let hasRmv = allowRmvReq || allowRmvAct;
         setVisibility('[onclick="toggleSubMenu(\'rmv-submenu\', this)"]', hasRmv);
-        setVisibility('[onclick="switchView(\'rmv-new\', this)"]', modules.includes("RMV-Request"));
-        setVisibility('[onclick="switchView(\'rmv-admin\', this)"]', modules.includes("RMV-Action"));
+        setVisibility('[onclick="switchView(\'rmv-new\', this)"]', allowRmvReq);
+        setVisibility('[onclick="switchView(\'rmv-admin\', this)"]', allowRmvAct);
         setVisibility('#dash-rmv-section', hasRmv, 'block');
 
-        let hasVal = modules.includes("Valuation-New") || modules.includes("Valuation-Pending") || modules.includes("Valuation-History");
+        let allowValNew = modules.includes("Valuation-New");
+        let allowValPend = modules.includes("Valuation-Pending") && isValApproverRole;
+        let allowValHist = modules.includes("Valuation-History");
+        let hasVal = allowValNew || allowValPend || allowValHist;
         setVisibility('[onclick="toggleSubMenu(\'val-submenu\', this)"]', hasVal);
-        setVisibility('[onclick="switchView(\'val-new\', this)"]', modules.includes("Valuation-New"));
-        setVisibility('[onclick="switchView(\'val-admin\', this)"]', modules.includes("Valuation-Pending"));
-        setVisibility('[onclick="switchView(\'val-history\', this)"]', modules.includes("Valuation-History"));
+        setVisibility('[onclick="switchView(\'val-new\', this)"]', allowValNew);
+        setVisibility('[onclick="switchView(\'val-admin\', this)"]', allowValPend);
+        setVisibility('[onclick="switchView(\'val-history\', this)"]', allowValHist);
         setVisibility('#dash-val-section', hasVal, 'block');
 
-        let hasAdmin = modules.includes("Admin-UserMgt") || modules.includes("Admin-Map");
+        let allowAdminUser = modules.includes("Admin-UserMgt") && isSysAdminAllowedRole;
+        let allowAdminMap = modules.includes("Admin-Map") && isSysAdminAllowedRole;
+        let hasAdmin = allowAdminUser || allowAdminMap;
         setVisibility('#admin-menu-category', hasAdmin);
-        setVisibility('[onclick="switchView(\'user-mgt\', this)"]', modules.includes("Admin-UserMgt"));
-        setVisibility('[onclick="switchView(\'live-map\', this)"]', modules.includes("Admin-Map"));
+        setVisibility('[onclick="switchView(\'user-mgt\', this)"]', allowAdminUser);
+        setVisibility('[onclick="switchView(\'live-map\', this)"]', allowAdminMap);
 
         let hasCR = modules.includes("CR-New") || modules.includes("CR-Pending") || modules.includes("CR-History");
         setVisibility('#cr-menu-category', hasCR);
@@ -1618,7 +1637,8 @@
           else statusBadge = '<span class="badge-rejected">Rejected</span>';
           
           var actionBtn = "-";
-          if (myRole === 'super admin' || myRole === 'system owner' || myRole === 'rmv approval' || myBranch === "rmv") { 
+          var myRoleNorm = myRole.trim();
+          if (myRoleNorm === 'system owner' || myRoleNorm === 'rmv approval' || myRoleNorm === 'rmv request approval user') { 
               actionBtn = `<button onclick="openRmvModal(${i})" style="background:#0d6efd; color:#fff; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">View & Confirm</button>`; 
           }
           var actByText = (row.approvedBy && row.approvedBy !== "-") ? row.approvedBy : '<span style="color:#999;font-size:12px;">Pending</span>';
@@ -1690,7 +1710,9 @@
           document.getElementById('mod_reject_reason').style.display = 'none';
       }
 
-      if(item.status === 'Pending') document.getElementById('mod_action_btns').style.display = 'block'; else document.getElementById('mod_action_btns').style.display = 'none';
+      var myRoleForRmv = String(currentUser.role || '').trim().toLowerCase();
+      var canApproveRmv = (myRoleForRmv === 'system owner' || myRoleForRmv === 'rmv approval' || myRoleForRmv === 'rmv request approval user');
+      if(item.status === 'Pending' && canApproveRmv) document.getElementById('mod_action_btns').style.display = 'block'; else document.getElementById('mod_action_btns').style.display = 'none';
       resetRmvImg();
       
       var url = item.fileUrl; var fileIdMatch = url ? url.match(/[-\w]{25,}/) : null;
@@ -1855,10 +1877,14 @@
     // NEW: USER PERMISSIONS & ACCESS MANAGEMENT LOGIC
     // ========================================================
     
+    var currentSelectedPermUserRole = "user";
+
     function toggleSub(mainId, subClass) {
         let isChecked = document.getElementById(mainId).checked;
         document.querySelectorAll('.' + subClass).forEach(chk => {
-            chk.checked = isChecked;
+            if (!chk.disabled) {
+                chk.checked = isChecked;
+            }
         });
     }
 
@@ -1895,6 +1921,45 @@
         document.querySelectorAll('.perm-label input[type="checkbox"]').forEach(chk => chk.checked = false);
         
         if (res.success && res.data) {
+           var userObjInList = systemUsersData.find(u => u.username === user);
+           var rawRole = res.data.role || (userObjInList && userObjInList.role) || "User";
+           currentSelectedPermUserRole = String(rawRole).trim().toLowerCase();
+
+           var roleBadge = document.getElementById('perm-role-badge');
+           if (roleBadge) {
+               roleBadge.innerText = rawRole;
+           }
+
+           // Role-based Feature Eligibility Rules:
+           // 01. Valuation Approval = valuation admin / system owner ONLY (No access for User / Super admin)
+           var canValApprove = (currentSelectedPermUserRole === 'valuation admin' || currentSelectedPermUserRole === 'system owner');
+           // 02. RMV Confirmation Approval = rmv approval / rmv request approval user / system owner ONLY (No access for User / Super admin)
+           var canRmvApprove = (currentSelectedPermUserRole === 'rmv approval' || currentSelectedPermUserRole === 'rmv request approval user' || currentSelectedPermUserRole === 'system owner');
+           // 04. System Admin = NOT allowed for User role
+           var canSysAdmin = (currentSelectedPermUserRole !== 'user');
+
+           // Enable/Disable checkboxes & show clear notes
+           var chkValPend = document.getElementById('chk_val_pend');
+           var noteValPend = document.getElementById('note_val_pend');
+           if (chkValPend) chkValPend.disabled = !canValApprove;
+           if (noteValPend) noteValPend.innerText = canValApprove ? "" : "(Valuation Admin / System Owner Only)";
+
+           var chkRmvAct = document.getElementById('chk_rmv_action');
+           var noteRmvAct = document.getElementById('note_rmv_action');
+           if (chkRmvAct) chkRmvAct.disabled = !canRmvApprove;
+           if (noteRmvAct) noteRmvAct.innerText = canRmvApprove ? "" : "(RMV Approval User / System Owner Only)";
+
+           var chkAdminMain = document.getElementById('chk_admin_main');
+           var chkAdminUser = document.getElementById('chk_admin_user');
+           var chkAdminMap = document.getElementById('chk_admin_map');
+           var scopeAdminEl = document.getElementById('scope_admin');
+           var noteAdminMain = document.getElementById('note_admin_main');
+           if (chkAdminMain) chkAdminMain.disabled = !canSysAdmin;
+           if (chkAdminUser) chkAdminUser.disabled = !canSysAdmin;
+           if (chkAdminMap) chkAdminMap.disabled = !canSysAdmin;
+           if (scopeAdminEl) scopeAdminEl.disabled = !canSysAdmin;
+           if (noteAdminMain) noteAdminMain.innerText = canSysAdmin ? "" : "(Disabled for 'User' Role)";
+
            var m = res.data.modules || "";
            if (m.includes("Dashboard")) document.getElementById('chk_dash').checked = true;
            
@@ -1903,13 +1968,13 @@
            if (m.includes("Courier-Send") && m.includes("Courier-Action")) document.getElementById('chk_courier_main').checked = true;
            
            if (m.includes("RMV-Request")) document.getElementById('chk_rmv_req').checked = true;
-           if (m.includes("RMV-Action")) document.getElementById('chk_rmv_action').checked = true;
-           if (m.includes("RMV-Request") && m.includes("RMV-Action")) document.getElementById('chk_rmv_main').checked = true;
+           if (m.includes("RMV-Action") && canRmvApprove) document.getElementById('chk_rmv_action').checked = true;
+           if (document.getElementById('chk_rmv_req').checked && (canRmvApprove ? document.getElementById('chk_rmv_action').checked : true)) document.getElementById('chk_rmv_main').checked = true;
            
            if (m.includes("Valuation-New")) document.getElementById('chk_val_new').checked = true;
-           if (m.includes("Valuation-Pending")) document.getElementById('chk_val_pend').checked = true;
+           if (m.includes("Valuation-Pending") && canValApprove) document.getElementById('chk_val_pend').checked = true;
            if (m.includes("Valuation-History")) document.getElementById('chk_val_hist').checked = true;
-           if (m.includes("Valuation-New") && m.includes("Valuation-Pending") && m.includes("Valuation-History")) document.getElementById('chk_val_main').checked = true;
+           if (document.getElementById('chk_val_new').checked && document.getElementById('chk_val_hist').checked && (canValApprove ? document.getElementById('chk_val_pend').checked : true)) document.getElementById('chk_val_main').checked = true;
            
            if (m.includes("CR-New")) document.getElementById('chk_cr_new').checked = true;
            if (m.includes("CR-Pending")) document.getElementById('chk_cr_pend').checked = true;
@@ -1921,9 +1986,9 @@
            if (m.includes("Print-Box")) document.getElementById('chk_print_box').checked = true;
            if (m.includes("Print-Add") && m.includes("Print-Paper") && m.includes("Print-Box")) document.getElementById('chk_print_main').checked = true;
            
-           if (m.includes("Admin-UserMgt")) document.getElementById('chk_admin_user').checked = true;
-           if (m.includes("Admin-Map")) document.getElementById('chk_admin_map').checked = true;
-           if (m.includes("Admin-UserMgt") && m.includes("Admin-Map")) document.getElementById('chk_admin_main').checked = true;
+           if (m.includes("Admin-UserMgt") && canSysAdmin) document.getElementById('chk_admin_user').checked = true;
+           if (m.includes("Admin-Map") && canSysAdmin) document.getElementById('chk_admin_map').checked = true;
+           if (canSysAdmin && m.includes("Admin-UserMgt") && m.includes("Admin-Map")) document.getElementById('chk_admin_main').checked = true;
            
            // Clear previous multi-select selections first
            document.querySelectorAll('.perm-branch-select option, .perm-company-select option').forEach(opt => opt.selected = false);
@@ -2005,16 +2070,23 @@
        if(!user) return Swal.fire("Required", "Please select a user to update.", "warning");
        
        var modules = [];
-       const checkSub = (id, name) => { if(document.getElementById(id) && document.getElementById(id).checked) modules.push(name); };
+       var canValApprove = (currentSelectedPermUserRole === 'valuation admin' || currentSelectedPermUserRole === 'system owner');
+       var canRmvApprove = (currentSelectedPermUserRole === 'rmv approval' || currentSelectedPermUserRole === 'rmv request approval user' || currentSelectedPermUserRole === 'system owner');
+       var canSysAdmin = (currentSelectedPermUserRole !== 'user');
+
+       const checkSub = (id, name, isAllowed = true) => {
+           var el = document.getElementById(id);
+           if(el && el.checked && !el.disabled && isAllowed) modules.push(name);
+       };
        
        if(document.getElementById('chk_dash') && document.getElementById('chk_dash').checked) modules.push("Dashboard");
        
        checkSub('chk_courier_send', "Courier-Send"); checkSub('chk_courier_action', "Courier-Action");
-       checkSub('chk_rmv_req', "RMV-Request"); checkSub('chk_rmv_action', "RMV-Action");
-       checkSub('chk_val_new', "Valuation-New"); checkSub('chk_val_pend', "Valuation-Pending"); checkSub('chk_val_hist', "Valuation-History");
+       checkSub('chk_rmv_req', "RMV-Request"); checkSub('chk_rmv_action', "RMV-Action", canRmvApprove);
+       checkSub('chk_val_new', "Valuation-New"); checkSub('chk_val_pend', "Valuation-Pending", canValApprove); checkSub('chk_val_hist', "Valuation-History");
        checkSub('chk_cr_new', "CR-New"); checkSub('chk_cr_pend', "CR-Pending"); checkSub('chk_cr_hist', "CR-History");
        checkSub('chk_print_add', "Print-Add"); checkSub('chk_print_paper', "Print-Paper"); checkSub('chk_print_box', "Print-Box");
-       checkSub('chk_admin_user', "Admin-UserMgt"); checkSub('chk_admin_map', "Admin-Map");
+       checkSub('chk_admin_user', "Admin-UserMgt", canSysAdmin); checkSub('chk_admin_map', "Admin-Map", canSysAdmin);
        
        var moduleScopes = {};
        const getScopeData = (modPrefix) => {
@@ -2434,7 +2506,8 @@
         const data = res.data; container.innerHTML = "";
         if(!data || data.length === 0) { container.innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>No pending valuations found.</div>"; return; }
         
-        var isAdmin = String(currentUser.role || "").toLowerCase().includes('admin') || String(currentUser.role || "").toLowerCase().includes('approval') || String(currentUser.role || "").toLowerCase().includes('owner');
+        var myValRole = String(currentUser.role || "").trim().toLowerCase();
+        var isAdmin = (myValRole === 'valuation admin' || myValRole === 'system owner');
         data.forEach(req => {
           var imgHtml = ''; var errImg = "this.onerror=null; this.src='https://placehold.co/250x180?text=Image+Error';";
           if(req.imgFront !== 'No Image') imgHtml += `<div class="admin-photo-item" onclick="openModal('${getImgUrl(req.imgFront)}')"><img src="${getImgUrl(req.imgFront)}" onerror="${errImg}"><div class="admin-photo-label">Front View</div></div>`;
