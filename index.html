@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
   <style>
     :root { --bg-dark:#121212; --sidebar-dark:#1a1a1a; --accent-red:#c62828; --accent-red-light:#e53935; --text-light:#ffffff; --text-muted:#9e9e9e; --bg-light:#f5f6fa; --card-bg:#ffffff; --border-color:#e0e0e0; }
@@ -207,6 +208,7 @@
         <div class="sub-menu" id="rmv-submenu">
           <div class="menu-item" data-icon="far fa-file-alt" onclick="switchView('rmv-new', this)"><i class="far fa-file-alt"></i> Confirmation Request</div>
           <div class="menu-item" data-icon="fas fa-clipboard-check" onclick="switchView('rmv-admin', this)"><i class="fas fa-clipboard-check"></i> Action Portal</div>
+          <div class="menu-item" id="menu-rmv-status" data-icon="fas fa-tasks" onclick="switchView('rmv-status', this)"><i class="fas fa-tasks"></i> Confirmation Status</div>
         </div>
 
         <div class="menu-category" onclick="toggleSubMenu('val-submenu', this)">
@@ -301,8 +303,9 @@
           
           <!-- CR UPLOAD DASHBOARD SUMMARY -->
           <div id="dash-cr-section" style="margin-top: 30px;">
-            <h3 class="section-title">Final CR Upload Overview</h3>
+            <h3 class="section-title">Final CR Upload Overview (Valuation Approvals Based)</h3>
             <div class="admin-cards">
+              <div class="a-card bg-blue"><h3>Approved Valuations</h3><div class="a-val" id="dash-cru-tot">0</div></div>
               <div class="a-card bg-yellow"><h3>Pending Uploads</h3><div class="a-val" id="dash-cru-pen">0</div></div>
               <div class="a-card bg-green"><h3>Completed Uploads</h3><div class="a-val" id="dash-cru-com">0</div></div>
             </div>
@@ -435,6 +438,7 @@
                            <div style="margin-left: 30px; border-left: 2px solid #ddd; padding-left: 10px; display:flex; flex-direction:column; gap:4px;">
                                <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_req"> Confirmation Request</label>
                                <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_action"> Action Portal <small id="note_rmv_action" style="color:#c62828; font-weight:600; margin-left:5px;"></small></label>
+                               <label class="perm-label"><input type="checkbox" class="sub_rmv" id="chk_rmv_status"> Confirmation Status</label>
                                
                                <label style="font-size:11px; font-weight:bold; color:#555; margin-top:5px;">Data Scope:</label>
                                 <select id="scope_rmv" class="admin-input" style="padding: 6px; margin-bottom: 5px; font-size: 12px;" onchange="toggleModuleBranch('rmv')">
@@ -641,6 +645,51 @@
           </div>
         </div>
 
+        <div id="view-rmv-status" class="view-section" style="display: none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#800000; color:white; padding:15px; border-radius:5px 5px 0 0;">
+            <h2 style="margin:0; font-size: 18px;"><i class="fas fa-tasks" style="margin-right:8px;"></i>RMV Confirmation Status Report</h2>
+            <span style="background:#fff; color:#800000; padding:5px 15px; border-radius:4px; font-weight:bold; font-size:13px;">Status & History</span>
+          </div>
+          <div style="background:#fff; padding:20px; border:1px solid #ddd; border-top:none;">
+             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <h3 style="color:#800000; margin:0;">RMV Request Status Overview</h3>
+                <button onclick="loadRMVStatusReport()" style="padding: 8px 15px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;"><i class="fas fa-sync-alt" style="margin-right:5px;"></i>Refresh List</button>
+             </div>
+             <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end; flex-wrap:wrap;">
+               <div style="flex:1; min-width:180px;"><label style="font-size:12px;font-weight:bold;color:#555;">Search</label><input type="text" id="rmvStatSearch" onkeyup="filterRmvStatusTable()" placeholder="Search ID, Vehicle or Branch..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;"></div>
+               <div style="flex:1; min-width:150px;"><label style="font-size:12px;font-weight:bold;color:#555;">Status</label>
+                 <select id="rmvStatFilter" onchange="filterRmvStatusTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
+                   <option value="" selected>All Statuses</option>
+                   <option value="Pending">Pending</option>
+                   <option value="Approved">Approved</option>
+                   <option value="Rejected">Rejected</option>
+                 </select>
+               </div>
+               <div style="flex:1; min-width:140px;"><label style="font-size:12px;font-weight:bold;color:#555;">From Date</label><input type="date" id="rmvStatFromDate" onchange="filterRmvStatusTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;"></div>
+               <div style="flex:1; min-width:140px;"><label style="font-size:12px;font-weight:bold;color:#555;">To Date</label><input type="date" id="rmvStatToDate" onchange="filterRmvStatusTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;"></div>
+               <div><button onclick="clearRmvStatusFilters()" style="background:#6c757d; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Clear</button></div>
+             </div>
+             <div style="border: 2px solid #800000; border-radius: 5px; overflow-x: auto;">
+               <table id="rmvStatusTable" style="width:100%; border-collapse:collapse; text-align:center; font-size:14px; white-space: nowrap;">
+                 <thead style="background:#2d2d2d; color:#fff;">
+                   <tr>
+                     <th style="padding:12px;">Company</th>
+                     <th style="padding:12px;">Date & Time</th>
+                     <th style="padding:12px;">Request ID</th>
+                     <th style="padding:12px;">Vehicle No</th>
+                     <th style="padding:12px;">Req By & Branch</th>
+                     <th style="padding:12px;">Status</th>
+                     <th style="padding:12px;">Action By</th>
+                     <th style="padding:12px;">Remarks / Reject Reason</th>
+                     <th style="padding:12px;">CR Copy</th>
+                   </tr>
+                 </thead>
+                 <tbody><tr><td colspan="9" style="text-align:center; padding:20px; color:#555;">Click 'Refresh List' to load RMV Confirmation Status.</td></tr></tbody>
+               </table>
+             </div>
+          </div>
+        </div>
+
         <div id="view-val-new" class="view-section" style="display: none;">
           <div class="form-box" style="max-width: 900px;">
             <h2 style="text-align:center; border-bottom: 3px solid #28a745; padding-bottom: 10px;">New Valuation Request</h2>
@@ -689,7 +738,10 @@
 
         <div id="view-val-history" class="view-section" style="display: none;">
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">Valuation History & Reports</h2>
-          <button onclick="loadValuationHistory()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh List</button>
+          <div style="display:flex; gap:10px; align-items:center; margin-bottom:15px; flex-wrap:wrap;">
+            <button onclick="loadValuationHistory()" style="padding: 10px 20px; background: #1a73e8; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;"><i class="fas fa-sync-alt" style="margin-right:6px;"></i>Refresh List</button>
+            <button onclick="exportValuationHistoryExcel()" style="padding: 10px 20px; background: #198754; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;"><i class="fas fa-file-excel" style="margin-right:6px;"></i>Download Excel (.xlsx)</button>
+          </div>
           
           <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end; background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd;">
             <div style="flex:1;">
@@ -950,7 +1002,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbwkF2o7c9Xvha5Pd6dqqffnLr5n1ST1U-pJDXU-8bCgdN1MSDQDtCWtVjgPyEnROTARgQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxjYfv0vaxxAc9QTnLodT7l6hGhs7qPXpbPbyXEgH_pjMDRAGcnr5Fp6pWU6V-8I5Pz/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -1247,7 +1299,7 @@
 
             var roleSelect = document.getElementById('new-user-role');
             if (roleSelect) {
-                roleSelect.innerHTML = '<option value="User">User</option><option value="rmv branch">RMV Branch User</option><option value="rmv approval">RMV Request Approval User</option><option value="valuation admin">Valuation Admin</option>';
+                roleSelect.innerHTML = '<option value="User">User</option>';
             }
         }
 
@@ -1333,9 +1385,9 @@
         var isSysAdminAllowedRole = (uRoleNorm !== 'user');
         
         if (!modules && uRoleNorm === 'system owner') {
-            modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,RMV-Action,Valuation-New,Valuation-Pending,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
+            modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,RMV-Action,RMV-Status,Valuation-New,Valuation-Pending,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
         } else if (!modules && (uRoleNorm === 'super admin' || uRoleNorm === 'admin')) {
-            modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,Valuation-New,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
+            modules = "Dashboard,Courier-Send,Courier-Action,RMV-Request,RMV-Status,Valuation-New,Valuation-History,CR-New,CR-Pending,CR-History,Print-Add,Print-Paper,Print-Box,Admin-UserMgt,Admin-Map";
         } else if (!modules) {
             modules = "Dashboard"; 
         }
@@ -1355,10 +1407,12 @@
 
         let allowRmvReq = modules.includes("RMV-Request");
         let allowRmvAct = modules.includes("RMV-Action") && isRmvApproverRole;
-        let hasRmv = allowRmvReq || allowRmvAct;
+        let allowRmvStatus = modules.includes("RMV-Status") || allowRmvReq || allowRmvAct;
+        let hasRmv = allowRmvReq || allowRmvAct || allowRmvStatus;
         setVisibility('[onclick="toggleSubMenu(\'rmv-submenu\', this)"]', hasRmv);
         setVisibility('[onclick="switchView(\'rmv-new\', this)"]', allowRmvReq);
         setVisibility('[onclick="switchView(\'rmv-admin\', this)"]', allowRmvAct);
+        setVisibility('[onclick="switchView(\'rmv-status\', this)"]', allowRmvStatus);
         setVisibility('#dash-rmv-section', hasRmv, 'block');
 
         let allowValNew = modules.includes("Valuation-New");
@@ -1561,8 +1615,14 @@
         if(document.getElementById('dash-v-app')) document.getElementById('dash-v-app').innerText = data.valuation.approved;
         if(document.getElementById('dash-v-rej')) document.getElementById('dash-v-rej').innerText = data.valuation.rejected;
 
-        if(document.getElementById('dash-cru-pen') && data.crupload) document.getElementById('dash-cru-pen').innerText = data.crupload.pending;
-        if(document.getElementById('dash-cru-com') && data.crupload) document.getElementById('dash-cru-com').innerText = data.crupload.completed;
+        var valApprovedCount = (data.valuation && data.valuation.approved !== undefined) ? (Number(data.valuation.approved) || 0) : 0;
+        var crPendingCount = (data.crupload && data.crupload.pending !== undefined) ? (Number(data.crupload.pending) || 0) : 0;
+        var crCompletedCount = Math.max(0, valApprovedCount - crPendingCount);
+        var crTotalApproved = (data.crupload && data.crupload.total !== undefined) ? (Number(data.crupload.total) || valApprovedCount) : valApprovedCount;
+
+        if(document.getElementById('dash-cru-tot')) document.getElementById('dash-cru-tot').innerText = crTotalApproved;
+        if(document.getElementById('dash-cru-pen')) document.getElementById('dash-cru-pen').innerText = crPendingCount;
+        if(document.getElementById('dash-cru-com')) document.getElementById('dash-cru-com').innerText = crCompletedCount;
 
       } catch(e) { console.error(e); }
     }
@@ -1670,7 +1730,107 @@
         }
       }
     }
-    function clearRmvFilters() { document.getElementById("rmvSearch").value = ""; document.getElementById("rmvStatusFilter").value = "Pending"; document.getElementById("rmvFromDate").value = ""; document.getElementById("rmvToDate").value = ""; filterRmvTable(); }    
+    function clearRmvFilters() { document.getElementById("rmvSearch").value = ""; document.getElementById("rmvStatusFilter").value = "Pending"; document.getElementById("rmvFromDate").value = ""; document.getElementById("rmvToDate").value = ""; filterRmvTable(); }
+
+    async function loadRMVStatusReport() {
+      var tbody = document.querySelector("#rmvStatusTable tbody");
+      if(!tbody) return;
+      tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:20px;'>Loading RMV Confirmation Status...</td></tr>";
+      try {
+        const res = await apiCall('getRMVData', {}, 'GET');
+        globalRmvData = res.data || [];
+        tbody.innerHTML = "";
+        if (!globalRmvData || globalRmvData.length === 0) {
+          tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:20px;'>No RMV confirmation requests found.</td></tr>";
+          return;
+        }
+        for (var i = 0; i < globalRmvData.length; i++) {
+          var row = globalRmvData[i];
+          var statusBadge = "";
+          if (row.status === 'Pending') statusBadge = '<span class="badge-pending">Pending</span>';
+          else if (row.status === 'Approved') statusBadge = '<span class="badge-accepted">Approved</span>';
+          else statusBadge = '<span class="badge-rejected">Rejected</span>';
+
+          var actByText = (row.approvedBy && row.approvedBy !== "-") ? `<b>${row.approvedBy}</b>` : '<span style="color:#999;font-size:12px;">Pending</span>';
+          var remText = (row.remarks && String(row.remarks).trim() !== "" && row.remarks !== "-")
+            ? `<span style="color:${row.status === 'Rejected' ? '#dc3545' : '#333'}; font-weight:${row.status === 'Rejected' ? 'bold' : 'normal'};">${row.remarks}</span>`
+            : '<span style="color:#aaa;">-</span>';
+          var reqByBr = `<b>${row.requestedBy || '-'}</b><br><small style="color:#666;">${row.branch || '-'}</small>`;
+          var viewBtn = `<button onclick="viewRmvStatusModal(${i})" style="background:#6c757d; color:#fff; padding:6px 12px; border:none; border-radius:4px; cursor:pointer; font-weight:bold; font-size:12px;"><i class="fas fa-eye" style="margin-right:4px;"></i>View CR</button>`;
+
+          tbody.innerHTML += `<tr style="border-bottom:1px solid #eee;">
+            <td style="padding:10px;"><b style="color:#e67e22;">${row.company || '-'}</b></td>
+            <td style="padding:10px;">${row.date || '-'}</td>
+            <td style="padding:10px;"><b>${row.reqId || '-'}</b></td>
+            <td style="padding:10px;"><span style="background:#2d2d2d; color:#fff; padding:3px 8px; border-radius:4px; font-weight:bold;">${row.vehicleNo || '-'}</span></td>
+            <td style="padding:10px;">${reqByBr}</td>
+            <td style="padding:10px;">${statusBadge}</td>
+            <td style="padding:10px;">${actByText}</td>
+            <td style="padding:10px; max-width:220px; white-space:normal;">${remText}</td>
+            <td style="padding:10px;">${viewBtn}</td>
+          </tr>`;
+        }
+        filterRmvStatusTable();
+      } catch(e) {
+        console.error(e);
+        tbody.innerHTML = "<tr><td colspan='9' style='text-align:center; padding:20px; color:red;'>Error loading RMV status report.</td></tr>";
+      }
+    }
+
+    function filterRmvStatusTable() {
+      var inputEl = document.getElementById("rmvStatSearch");
+      var statusEl = document.getElementById("rmvStatFilter");
+      var fDateEl = document.getElementById("rmvStatFromDate");
+      var tDateEl = document.getElementById("rmvStatToDate");
+      var tableEl = document.getElementById("rmvStatusTable");
+      if (!tableEl) return;
+
+      var input = inputEl ? inputEl.value.toLowerCase() : "";
+      var status = statusEl ? statusEl.value.toLowerCase() : "";
+      var fDate = fDateEl ? fDateEl.value : "";
+      var tDate = tDateEl ? tDateEl.value : "";
+      var tr = tableEl.getElementsByTagName("tr");
+
+      for (var i = 1; i < tr.length; i++) {
+        var tds = tr[i].getElementsByTagName("td");
+        if (tds.length >= 7) {
+          var tdDate = tds[1];
+          var tdId = tds[2];
+          var tdVeh = tds[3];
+          var tdBr = tds[4];
+          var tdStatus = tds[5];
+          var rowDateStr = (tdDate.textContent || tdDate.innerText || "").trim();
+          var rowDate = new Date(rowDateStr.split(" ")[0]);
+
+          var matchSearch = (tdId.innerText.toLowerCase().indexOf(input) > -1) ||
+                            (tdVeh.innerText.toLowerCase().indexOf(input) > -1) ||
+                            (tdBr.innerText.toLowerCase().indexOf(input) > -1);
+          var matchStatus = (status === "" || status === "all statuses" || tdStatus.innerText.toLowerCase().indexOf(status) > -1);
+          var matchDate = true;
+          if (fDate) { if (rowDate < new Date(fDate)) matchDate = false; }
+          if (tDate) {
+            var toDateObj = new Date(tDate);
+            toDateObj.setHours(23, 59, 59, 999);
+            if (rowDate > toDateObj) matchDate = false;
+          }
+          tr[i].style.display = (matchSearch && matchStatus && matchDate) ? "" : "none";
+        }
+      }
+    }
+
+    function clearRmvStatusFilters() {
+      if(document.getElementById("rmvStatSearch")) document.getElementById("rmvStatSearch").value = "";
+      if(document.getElementById("rmvStatFilter")) document.getElementById("rmvStatFilter").value = "";
+      if(document.getElementById("rmvStatFromDate")) document.getElementById("rmvStatFromDate").value = "";
+      if(document.getElementById("rmvStatToDate")) document.getElementById("rmvStatToDate").value = "";
+      filterRmvStatusTable();
+    }
+
+    function viewRmvStatusModal(index) {
+      openRmvModal(index);
+      var actBtns = document.getElementById('mod_action_btns');
+      if (actBtns) actBtns.style.display = 'none';
+    }    
     
     var rmvScale = 1, rmvRotate = 0, rmvPanning = false, rmvPx = 0, rmvPy = 0, rmvSx = 0, rmvSy = 0;
     var rContainer = document.getElementById("img_container"); var rImg = document.getElementById("mod_img");
@@ -1778,7 +1938,7 @@
       if (!c || c === "") { c = currentUser.company; }
       
       var b = document.getElementById('new-user-branch').value; 
-      var r = document.getElementById('new-user-role').value; 
+      var r = (String(currentUser.role || '').trim().toLowerCase() === 'system owner') ? document.getElementById('new-user-role').value : 'User'; 
       var n = document.getElementById('new-user-name').value; 
       var u = document.getElementById('new-user-uname').value; 
       var e = document.getElementById('new-user-email').value;
@@ -1969,7 +2129,10 @@
            
            if (m.includes("RMV-Request")) document.getElementById('chk_rmv_req').checked = true;
            if (m.includes("RMV-Action") && canRmvApprove) document.getElementById('chk_rmv_action').checked = true;
-           if (document.getElementById('chk_rmv_req').checked && (canRmvApprove ? document.getElementById('chk_rmv_action').checked : true)) document.getElementById('chk_rmv_main').checked = true;
+           if (m.includes("RMV-Status") || m.includes("RMV-Request") || m.includes("RMV-Action")) {
+               if (document.getElementById('chk_rmv_status')) document.getElementById('chk_rmv_status').checked = true;
+           }
+           if (document.getElementById('chk_rmv_req').checked && document.getElementById('chk_rmv_status').checked && (canRmvApprove ? document.getElementById('chk_rmv_action').checked : true)) document.getElementById('chk_rmv_main').checked = true;
            
            if (m.includes("Valuation-New")) document.getElementById('chk_val_new').checked = true;
            if (m.includes("Valuation-Pending") && canValApprove) document.getElementById('chk_val_pend').checked = true;
@@ -2082,7 +2245,7 @@
        if(document.getElementById('chk_dash') && document.getElementById('chk_dash').checked) modules.push("Dashboard");
        
        checkSub('chk_courier_send', "Courier-Send"); checkSub('chk_courier_action', "Courier-Action");
-       checkSub('chk_rmv_req', "RMV-Request"); checkSub('chk_rmv_action', "RMV-Action", canRmvApprove);
+       checkSub('chk_rmv_req', "RMV-Request"); checkSub('chk_rmv_action', "RMV-Action", canRmvApprove); checkSub('chk_rmv_status', "RMV-Status");
        checkSub('chk_val_new', "Valuation-New"); checkSub('chk_val_pend', "Valuation-Pending", canValApprove); checkSub('chk_val_hist', "Valuation-History");
        checkSub('chk_cr_new', "CR-New"); checkSub('chk_cr_pend', "CR-Pending"); checkSub('chk_cr_hist', "CR-History");
        checkSub('chk_print_add', "Print-Add"); checkSub('chk_print_paper', "Print-Paper"); checkSub('chk_print_box', "Print-Box");
@@ -2245,6 +2408,7 @@
 
       if(viewId === 'courier-admin') clearTbody("parcelTable");
       if(viewId === 'rmv-admin') clearTbody("rmvTable");
+      if(viewId === 'rmv-status') loadRMVStatusReport();
       if(viewId === 'val-admin') { document.getElementById("admin-req-list").innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>Please click 'Refresh List' to load pending approvals.</div>"; }
       if(viewId === 'val-history') clearTbody("valHistoryTable");
       if(viewId === 'cr-upload-history') { crHistoryLoaded = false; clearTbody("crHistoryTable"); }
@@ -2575,6 +2739,109 @@
     }
 
     function clearValFilters() { document.getElementById("valFromDate").value = ""; document.getElementById("valToDate").value = ""; document.getElementById("valSearch").value = ""; filterValHistoryTable(); }
+
+    async function exportValuationHistoryExcel() {
+      try {
+        if (!globalHistoryValData || globalHistoryValData.length === 0) {
+          Swal.fire({ title: 'Loading Valuation Data...', text: 'Fetching valuation history for Excel export...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+          await loadValuationHistory();
+          Swal.close();
+        }
+        if (!globalHistoryValData || globalHistoryValData.length === 0) {
+          return Swal.fire("No Data", "No valuation history records found to export.", "info");
+        }
+
+        var fDate = document.getElementById("valFromDate") ? document.getElementById("valFromDate").value : "";
+        var tDate = document.getElementById("valToDate") ? document.getElementById("valToDate").value : "";
+        var search = document.getElementById("valSearch") ? document.getElementById("valSearch").value.toLowerCase().trim() : "";
+
+        var filteredRows = globalHistoryValData.filter(function(row) {
+          var vehStr = String(row.vehNo || "").toLowerCase();
+          var matchSearch = !search || vehStr.indexOf(search) > -1;
+          var matchDate = true;
+          if (fDate || tDate) {
+            var rowDate = new Date(row.date);
+            if (fDate && rowDate < new Date(fDate)) matchDate = false;
+            if (tDate) {
+              var toDateObj = new Date(tDate);
+              toDateObj.setHours(23, 59, 59, 999);
+              if (rowDate > toDateObj) matchDate = false;
+            }
+          }
+          return matchSearch && matchDate;
+        });
+
+        if (filteredRows.length === 0) {
+          return Swal.fire("No Matching Records", "No valuation records match your current date/search filter.", "warning");
+        }
+
+        var exportData = filteredRows.map(function(r, idx) {
+          return {
+            "No": idx + 1,
+            "Company": r.company || "-",
+            "Date": r.date || "-",
+            "Reference No": r.refNo || "-",
+            "Requested By": r.reqName || "-",
+            "Branch": r.branch || "-",
+            "Vehicle No": r.vehNo || "-",
+            "Vehicle Type": r.vType || "-",
+            "Make & Model": r.makeModel || "-",
+            "YOM": r.yom || "-",
+            "Chassis No": r.chassis || "-",
+            "Engine No": r.engine || "-",
+            "Color": r.color || "-",
+            "Engine CC": r.engCc || "-",
+            "Fuel Type": r.fuelType || "-",
+            "Requested Amount (LKR)": r.reqAmnt || "-",
+            "Market Value (LKR)": r.marketVal || "-",
+            "Forced Sale Value (LKR)": r.saleVal || "-",
+            "Status": r.status || "-",
+            "Approved Date": r.approvedDate || "-",
+            "Admin Remarks": (r.adminRemarks && r.adminRemarks !== "-") ? r.adminRemarks : (r.remarks || "-"),
+            "PDF Report URL": r.pdf || "-"
+          };
+        });
+
+        var todayStr = new Date().toISOString().slice(0, 10);
+        var fileName = "Valuation_History_Report_" + todayStr + ".xlsx";
+
+        if (typeof XLSX !== "undefined") {
+          var ws = XLSX.utils.json_to_sheet(exportData);
+          ws['!cols'] = [
+            { wch: 6 }, { wch: 14 }, { wch: 14 }, { wch: 18 }, { wch: 18 },
+            { wch: 16 }, { wch: 15 }, { wch: 15 }, { wch: 24 }, { wch: 8 },
+            { wch: 20 }, { wch: 20 }, { wch: 14 }, { wch: 12 }, { wch: 12 },
+            { wch: 20 }, { wch: 18 }, { wch: 20 }, { wch: 14 }, { wch: 16 },
+            { wch: 28 }, { wch: 40 }
+          ];
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Valuation History");
+          XLSX.writeFile(wb, fileName);
+        } else {
+          // Fallback to CSV if XLSX CDN fails to load
+          var headers = Object.keys(exportData[0]);
+          var csvRows = [headers.join(",")];
+          exportData.forEach(function(rowObj) {
+            var vals = headers.map(function(h) {
+              var val = String(rowObj[h] ?? "").replace(/"/g, '""');
+              return '"' + val + '"';
+            });
+            csvRows.push(vals.join(","));
+          });
+          var blob = new Blob([csvRows.join("
+")], { type: "text/csv;charset=utf-8;" });
+          var link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "Valuation_History_Report_" + todayStr + ".csv";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire("Export Error", "Failed to export Valuation History: " + err.message, "error");
+      }
+    }
 
     function filterCourierTable() {
         var fDate = document.getElementById("courierFromDate").value; var tDate = document.getElementById("courierToDate").value; var search = document.getElementById("courierSearch").value.toLowerCase(); var status = document.getElementById("courierStatusFilter").value.toLowerCase(); var tr = document.getElementById("parcelTable").getElementsByTagName("tr");
