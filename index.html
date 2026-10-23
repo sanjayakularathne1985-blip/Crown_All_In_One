@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin_Portal_Multiple</title>
+  <title>Admin_Test_Portal_Multiple</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -724,32 +724,66 @@
         <div id="view-cr-upload-new" class="view-section" style="display: none;">
           <div class="form-box" style="max-width: 800px; margin: 0 auto;">
             <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
-              <i class="fas fa-cloud-upload-alt"></i> Upload Final CR (Approved Valuations)
+              <i class="fas fa-cloud-upload-alt"></i> Upload Final CR
             </h2>
-            
-            <label style="color: #0d6efd;">🔍 Search by Vehicle Number or Reference No</label>
-            <input type="text" id="cr_search_input" list="pending_cr_list" class="admin-input" placeholder="Type Vehicle No... (e.g., WP CAB-1234)" onchange="loadCRDetails()">
-            <datalist id="pending_cr_list"></datalist>
 
-            <!-- Details Section -->
-            <div id="cr_details_box" style="display:none; background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:20px;">
-              <h4 style="margin-top:0; color:#333; margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:5px;">Valuation Details</h4>
-              <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-                <div><label>Reference No:</label> <strong id="lbl_cr_ref" style="color:#c62828;"></strong></div>
-                <div><label>Vehicle No:</label> <strong id="lbl_cr_veh"></strong></div>
-                <div><label>Make & Model:</label> <strong id="lbl_cr_make"></strong></div>
-                <div><label>Approved Date:</label> <strong id="lbl_cr_appdate"></strong></div>
-                <div><label>Request Branch:</label> <strong id="lbl_cr_branch"></strong></div>
-                <div><label>Request User:</label> <strong id="lbl_cr_user"></strong></div>
+            <!-- Option Toggle Buttons -->
+            <div style="display: flex; gap: 10px; margin-bottom: 25px;">
+              <button type="button" id="btn_cr_mode_val" onclick="switchCRUploadMode('valuation')" style="flex: 1; padding: 12px; border: 2px solid #0d6efd; background: #0d6efd; color: #fff; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s;">
+                <i class="fas fa-check-circle"></i> From Approved Valuations
+              </button>
+              <button type="button" id="btn_cr_mode_direct" onclick="switchCRUploadMode('direct')" style="flex: 1; padding: 12px; border: 2px solid #0d6efd; background: #fff; color: #0d6efd; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s;">
+                <i class="fas fa-file-medical"></i> Direct / Unregistered CR Upload
+              </button>
+            </div>
+            
+            <!-- MODE 1: From Approved Valuations -->
+            <div id="cr_mode_valuation_box">
+              <label style="color: #0d6efd;">🔍 Search by Vehicle Number or Reference No</label>
+              <input type="text" id="cr_search_input" list="pending_cr_list" class="admin-input" placeholder="Type Vehicle No... (e.g., WP CAB-1234)" onchange="loadCRDetails()">
+              <datalist id="pending_cr_list"></datalist>
+
+              <!-- Details Section -->
+              <div id="cr_details_box" style="display:none; background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:20px;">
+                <h4 style="margin-top:0; color:#333; margin-bottom:15px; border-bottom:1px solid #ccc; padding-bottom:5px;">Valuation Details</h4>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+                  <div><label>Reference No:</label> <strong id="lbl_cr_ref" style="color:#c62828;"></strong></div>
+                  <div><label>Vehicle No:</label> <strong id="lbl_cr_veh"></strong></div>
+                  <div><label>Make & Model:</label> <strong id="lbl_cr_make"></strong></div>
+                  <div><label>Approved Date:</label> <strong id="lbl_cr_appdate"></strong></div>
+                  <div><label>Request Branch:</label> <strong id="lbl_cr_branch"></strong></div>
+                  <div><label>Request User:</label> <strong id="lbl_cr_user"></strong></div>
+                </div>
+                <input type="hidden" id="cr_row_index">
               </div>
-              <input type="hidden" id="cr_row_index">
+
+              <!-- Upload Section -->
+              <div id="cr_upload_section" style="display:none;">
+                <label>Upload Final CR Document (PDF or Image) *</label>
+                <input type="file" id="final_cr_file" accept=".pdf, image/*" class="admin-input">
+                <button class="btn-submit" id="crSubmitBtn" onclick="submitFinalCR()">Upload & Save CR</button>
+              </div>
             </div>
 
-            <!-- Upload Section -->
-            <div id="cr_upload_section" style="display:none;">
+            <!-- MODE 2: Direct / Unregistered CR Upload -->
+            <div id="cr_mode_direct_box" style="display: none;">
+              <div style="background: #fff8e1; border-left: 4px solid #f39c12; padding: 12px 15px; border-radius: 4px; margin-bottom: 20px; font-size: 13px; color: #664d03;">
+                <i class="fas fa-info-circle"></i> Use this option to upload CR documents for <strong>Unregistered Vehicles</strong> or vehicles without a prior Valuation record.
+              </div>
+
+              <label>Facility Number *</label>
+              <input type="text" id="direct_cr_facility" class="admin-input" placeholder="Enter Facility Number...">
+
+              <label>Vehicle No / Chassis No (Unregistered) *</label>
+              <input type="text" id="direct_cr_veh" class="admin-input" placeholder="Ex: WP CAB-1234 or Unregistered Chassis No...">
+
+              <label>Remarks</label>
+              <textarea id="direct_cr_remarks" class="admin-input" rows="2" placeholder="Add any remarks (optional)..."></textarea>
+
               <label>Upload Final CR Document (PDF or Image) *</label>
-              <input type="file" id="final_cr_file" accept=".pdf, image/*" class="admin-input">
-              <button class="btn-submit" id="crSubmitBtn" onclick="submitFinalCR()">Upload & Save CR</button>
+              <input type="file" id="direct_cr_file" accept=".pdf, image/*" class="admin-input">
+
+              <button class="btn-submit" id="directCrSubmitBtn" onclick="submitDirectCR()">Upload & Save Direct CR</button>
             </div>
           </div>
         </div>
@@ -770,6 +804,32 @@
           <h2 style="color: var(--accent-red); border-bottom: 2px solid #eee; padding-bottom: 10px;">CR Upload History & Summary</h2>
           <button onclick="loadCRHistory()" style="padding: 8px 15px; background: #0d6efd; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom:15px;">Refresh Report</button>
           
+          <div style="display:flex; gap:15px; margin-bottom:20px; align-items:flex-end; background:#fff; padding:15px; border-radius:8px; border:1px solid #ddd;">
+            <div style="flex:1;">
+              <label style="font-size:12px;font-weight:bold;color:#555;">From Date</label>
+              <input type="date" id="crFromDate" onchange="filterCRHistoryTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:12px;font-weight:bold;color:#555;">To Date</label>
+              <input type="date" id="crToDate" onchange="filterCRHistoryTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size:12px;font-weight:bold;color:#555;">Upload Type</label>
+              <select id="crTypeFilter" onchange="filterCRHistoryTable()" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
+                <option value="">All Uploads</option>
+                <option value="valuation">Valuation CR</option>
+                <option value="direct">Direct / Unregistered CR</option>
+              </select>
+            </div>
+            <div style="flex:1.5;">
+              <label style="font-size:12px;font-weight:bold;color:#555;">Search (Vehicle / Ref / Facility / User)</label>
+              <input type="text" id="crHistorySearch" onkeyup="filterCRHistoryTable()" placeholder="Search Vehicle No, Ref/Facility No, User..." style="width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; outline:none;">
+            </div>
+            <div>
+              <button onclick="clearCRHistoryFilters()" style="background:#6c757d; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer; font-weight:bold;">Clear</button>
+            </div>
+          </div>
+
           <div class="table-container">
             <table id="crHistoryTable" class="blue-header">
               <thead><tr><th>Company</th><th>Uploaded Date</th><th>Ref No</th><th>Vehicle No</th><th>Make & Model</th><th>Uploaded By</th><th>CR Document</th></tr></thead>
@@ -786,6 +846,31 @@
     <button class="rotate-btn" onclick="rotateImage(event)"><i class="fas fa-undo"></i> Rotate</button>
     <span class="close-btn" onclick="closeModal()">×</span>
     <div class="modal-content-container" id="modalContainer"><img class="modal-content" id="fullImage"></div>
+  </div>
+
+  <!-- CR VIEW / DOWNLOAD PREVIEW MODAL -->
+  <div id="cr-preview-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.88); z-index:10050; flex-direction:column;">
+    <div style="background:#1a1a1a; color:#fff; padding:12px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid #c62828;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <i class="fas fa-file-shield" style="color:#e53935; font-size:20px;"></i>
+        <div>
+          <h3 id="cr_prev_title" style="margin:0; font-size:16px;">CR Document Preview</h3>
+          <small id="cr_prev_subtitle" style="color:#ffc107; font-size:12px;"></small>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a id="cr_prev_download_btn" href="#" download="CR_Document.pdf" style="background:#0d6efd; color:#fff; padding:8px 16px; border-radius:4px; text-decoration:none; font-weight:bold; font-size:13px; display:inline-flex; align-items:center; gap:6px;">
+          <i class="fas fa-download"></i> Download CR
+        </a>
+        <button onclick="closeCRPreviewModal()" style="background:#dc3545; color:#fff; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; font-weight:bold; font-size:13px;">
+          <i class="fas fa-times"></i> Close
+        </button>
+      </div>
+    </div>
+    <div style="flex:1; display:flex; justify-content:center; align-items:center; overflow:auto; padding:15px; background:#2c2c2c;">
+      <iframe id="cr_prev_iframe" style="width:100%; height:100%; max-width:950px; border:none; border-radius:6px; background:#fff; display:none;"></iframe>
+      <img id="cr_prev_img" style="max-width:95%; max-height:92%; object-fit:contain; border-radius:6px; box-shadow:0 5px 25px rgba(0,0,0,0.5); display:none;">
+    </div>
   </div>
 
   <!-- VALUATION DETAILS MODAL -->
@@ -859,7 +944,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbyEbDw3pcZdOSxyYxLLPnjyEa-AidH2TuLq2yuOtuG8fmNsCcC7950cW4ONWliiD4rZhQ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxjYfv0vaxxAc9QTnLodT7l6hGhs7qPXpbPbyXEgH_pjMDRAGcnr5Fp6pWU6V-8I5Pz/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -2062,7 +2147,7 @@
       if(viewId === 'rmv-admin') clearTbody("rmvTable");
       if(viewId === 'val-admin') { document.getElementById("admin-req-list").innerHTML = "<div style='text-align:center; padding:20px; background:#fff; border-radius:8px;'>Please click 'Refresh List' to load pending approvals.</div>"; }
       if(viewId === 'val-history') clearTbody("valHistoryTable");
-      if(viewId === 'cr-upload-history') clearTbody("crHistoryTable");
+      if(viewId === 'cr-upload-history') { crHistoryLoaded = false; clearTbody("crHistoryTable"); }
       if(viewId === 'cr-upload-pending') clearTbody("crPendingTable");
     }
 
@@ -2174,31 +2259,63 @@
       });
     }
 
-    async function getSealImageBase64() {
+    function getFormattedIssueDate(customDateStr) {
+      if (customDateStr) return customDateStr;
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    async function getSealImageBase64(customDateStr, onlyDateBar = false) {
+      const issueDate = getFormattedIssueDate(customDateStr);
       const canvas = document.createElement('canvas');
-      canvas.width = 800;
-      canvas.height = 300;
+      canvas.width = 1000;
+      canvas.height = 800;
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "rgba(220, 53, 69, 0.4)"; 
-      ctx.font = "bold 32px sans-serif";
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(-Math.PI / 8);
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.translate(canvas.width / 2, canvas.height / 2);
-      ctx.rotate(-Math.PI / 8); 
-      ctx.strokeStyle = "rgba(220, 53, 69, 0.4)";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(-360, -80, 720, 170);
-      ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -35);
-      ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 10);
-      ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, 50);
+
+      if (!onlyDateBar) {
+        // Outer Seal Box (matches original 3-line box: y = -80 to +90)
+        ctx.strokeStyle = "rgba(220, 53, 69, 0.40)";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(-360, -80, 720, 170);
+
+        // Standard 3 Watermark Lines
+        ctx.fillStyle = "rgba(220, 53, 69, 0.38)";
+        ctx.font = "bold 32px sans-serif";
+        ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -35);
+        ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 10);
+        ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, 50);
+      } else {
+        // Moved further down (y = 170..218) and shifted left (offsetX = -85) so the right-side date never clips
+        const offsetX = -85;
+        const barW = 680;
+        const barY = 170;
+        const barH = 48;
+        ctx.fillStyle = "rgba(255, 245, 157, 0.20)";
+        ctx.fillRect(offsetX - (barW / 2), barY, barW, barH);
+        ctx.strokeStyle = "rgba(220, 53, 69, 0.45)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(offsetX - (barW / 2), barY, barW, barH);
+
+        ctx.fillStyle = "rgba(198, 40, 40, 0.48)";
+        ctx.font = "900 23px sans-serif";
+        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW - 20);
+      }
+
       return canvas.toDataURL('image/png');
     }
 
-    async function watermarkPDF(file) {
+    async function watermarkPDF(file, customDateStr) {
       const arrayBuffer = await file.arrayBuffer();
       const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
-      const sealDataUrl = await getSealImageBase64();
+      const sealDataUrl = await getSealImageBase64(customDateStr, false);
       const sealImage = await pdfDoc.embedPng(sealDataUrl);
       const { width: sealWidth, height: sealHeight } = sealImage.scale(0.8); 
       const pages = pdfDoc.getPages();
@@ -2219,7 +2336,50 @@
       return window.btoa(binary);
     }
 
-    function compressAndWatermarkImage(file, maxWidth, quality) {
+    function drawImageSealOnCanvas(ctx, width, height, customDateStr, onlyDateBar = false) {
+      const issueDate = getFormattedIssueDate(customDateStr);
+      ctx.save();
+      let fontSize = Math.max(14, Math.floor(width / 28));
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.translate(width / 2, height / 2);
+      ctx.rotate(-Math.PI / 6);
+
+      let boxW = fontSize * 23;
+      let boxH = fontSize * 4.8;
+
+      if (!onlyDateBar) {
+        // Outer Seal Box & Standard 3 Lines (y = -2.4*fontSize to +2.4*fontSize)
+        ctx.strokeStyle = "rgba(220, 53, 69, 0.40)";
+        ctx.lineWidth = Math.max(2, Math.floor(fontSize / 8));
+        ctx.strokeRect(-boxW / 2, -fontSize * 2.4, boxW, boxH);
+
+        ctx.fillStyle = "rgba(220, 53, 69, 0.38)";
+        ctx.font = "bold " + fontSize + "px sans-serif";
+        ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -fontSize * 1.5, boxW * 0.94);
+        ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 0, boxW * 0.94);
+        ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, fontSize * 1.4, boxW * 0.94);
+      } else {
+        // Moved further down (barY = fontSize * 4.5) and shifted left (offsetX = -fontSize * 3.2) so date never clips on right
+        let offsetX = -fontSize * 3.2;
+        let barW = fontSize * 21.5;
+        let barH = fontSize * 1.55;
+        let barY = fontSize * 4.5;
+        ctx.fillStyle = "rgba(255, 245, 157, 0.20)";
+        ctx.fillRect(offsetX - (barW / 2), barY, barW, barH);
+        ctx.strokeStyle = "rgba(220, 53, 69, 0.45)";
+        ctx.lineWidth = Math.max(1.5, Math.floor(fontSize / 10));
+        ctx.strokeRect(offsetX - (barW / 2), barY, barW, barH);
+
+        let dateFontSize = Math.max(11, Math.floor(fontSize * 0.76));
+        ctx.fillStyle = "rgba(198, 40, 40, 0.48)";
+        ctx.font = "900 " + dateFontSize + "px sans-serif";
+        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW * 0.95);
+      }
+      ctx.restore();
+    }
+
+    function compressAndWatermarkImage(file, maxWidth, quality, customDateStr) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader(); reader.readAsDataURL(file);
         reader.onload = event => {
@@ -2229,16 +2389,7 @@
             if (width > maxWidth) { height = Math.round((height * maxWidth) / width); width = maxWidth; }
             canvas.width = width; canvas.height = height; const ctx = canvas.getContext('2d'); 
             ctx.drawImage(img, 0, 0, width, height); 
-            ctx.save();
-            ctx.fillStyle = "rgba(220, 53, 69, 0.4)"; 
-            let fontSize = Math.floor(width / 28); 
-            ctx.font = "bold " + fontSize + "px sans-serif";
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.translate(width / 2, height / 2); ctx.rotate(-Math.PI / 6); 
-            ctx.fillText("මෙය වාහනය ලියාපදිංචි සහතිකයේ සත්‍ය පිටපතකි.", 0, -fontSize * 1.5);
-            ctx.fillText("අදායම් බලපත්‍රය ලබාගැනීමට /", 0, 0);
-            ctx.fillText("දුම් වාර්තාව ලබාගැනීමට පමණි", 0, fontSize * 1.5);
-            ctx.restore();
+            drawImageSealOnCanvas(ctx, width, height, customDateStr, false);
             const dataUrl = canvas.toDataURL('image/jpeg', quality); 
             resolve({ data: dataUrl.split(',')[1], type: 'image/jpeg', name: file.name });
           };
@@ -2340,6 +2491,96 @@
     function clearCourierFilters() { document.getElementById("courierFromDate").value = ""; document.getElementById("courierToDate").value = ""; document.getElementById("courierSearch").value = ""; document.getElementById("courierStatusFilter").value = "Pending"; filterCourierTable(); }  
     
     var globalPendingCR = [];
+
+    function switchCRUploadMode(mode) {
+      var valBox = document.getElementById('cr_mode_valuation_box');
+      var dirBox = document.getElementById('cr_mode_direct_box');
+      var btnVal = document.getElementById('btn_cr_mode_val');
+      var btnDir = document.getElementById('btn_cr_mode_direct');
+
+      if (mode === 'direct') {
+        valBox.style.display = 'none';
+        dirBox.style.display = 'block';
+        btnDir.style.background = '#0d6efd';
+        btnDir.style.color = '#fff';
+        btnVal.style.background = '#fff';
+        btnVal.style.color = '#0d6efd';
+      } else {
+        valBox.style.display = 'block';
+        dirBox.style.display = 'none';
+        btnVal.style.background = '#0d6efd';
+        btnVal.style.color = '#fff';
+        btnDir.style.background = '#fff';
+        btnDir.style.color = '#0d6efd';
+      }
+    }
+
+    async function submitDirectCR() {
+      var facilityNo = document.getElementById('direct_cr_facility').value.trim();
+      var vehNo = document.getElementById('direct_cr_veh').value.trim();
+      var remarks = document.getElementById('direct_cr_remarks').value.trim();
+      var fileInput = document.getElementById('direct_cr_file');
+
+      if (!facilityNo || !vehNo) {
+        return Swal.fire("Required", "Please enter both Facility Number and Vehicle No!", "warning");
+      }
+      if (fileInput.files.length === 0) {
+        return Swal.fire("Required", "Please select a CR document to upload!", "warning");
+      }
+
+      var btn = document.getElementById('directCrSubmitBtn');
+      btn.disabled = true;
+      btn.innerText = "Processing File... ⏳";
+
+      try {
+        let f = fileInput.files[0];
+        let base64Str, typeStr, nameStr;
+
+        if (f.type === "application/pdf") {
+          btn.innerText = "Applying Seal to PDF... ⏳";
+          base64Str = await watermarkPDF(f);
+          typeStr = 'application/pdf';
+          nameStr = f.name;
+        } else {
+          btn.innerText = "Applying Seal to Image... ⏳";
+          let compressed = await compressAndWatermarkImage(f, 1000, 0.7);
+          base64Str = compressed.data;
+          typeStr = compressed.type;
+          nameStr = compressed.name;
+        }
+
+        btn.innerText = "Uploading to Drive & Saving to Sheet... 🚀";
+
+        var payload = {
+          company: currentUser.company,
+          branch: currentUser.branch,
+          uploadedBy: currentUser.user,
+          email: currentUser.email,
+          facilityNo: facilityNo,
+          vehNo: vehNo,
+          remarks: remarks,
+          fileData: { base64: base64Str, type: typeStr, name: nameStr }
+        };
+
+        const serverRes = await apiCall('uploadDirectCR', payload);
+
+        if (serverRes.success) {
+          Swal.fire("Success", "Direct CR Uploaded Successfully!", "success");
+          document.getElementById('direct_cr_facility').value = "";
+          document.getElementById('direct_cr_veh').value = "";
+          document.getElementById('direct_cr_remarks').value = "";
+          document.getElementById('direct_cr_file').value = "";
+          loadDashboardStats();
+        } else {
+          Swal.fire("Error", serverRes.error || "Upload failed", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", error.message, "error");
+      } finally {
+        btn.disabled = false;
+        btn.innerText = "Upload & Save Direct CR";
+      }
+    }
 
     async function loadPendingCRList() {
       try {
@@ -2443,26 +2684,225 @@
       }
     }
 
+    var currentCRBlobUrl = null;
+
+    function closeCRPreviewModal() {
+      var modal = document.getElementById('cr-preview-modal');
+      if (modal) modal.style.display = 'none';
+      var iframe = document.getElementById('cr_prev_iframe');
+      var img = document.getElementById('cr_prev_img');
+      if (iframe) iframe.src = '';
+      if (img) img.src = '';
+      if (currentCRBlobUrl) {
+        URL.revokeObjectURL(currentCRBlobUrl);
+        currentCRBlobUrl = null;
+      }
+    }
+
+    async function viewOrDownloadCR(crUrl, vehNo, mode) {
+      if (!crUrl) return Swal.fire("Error", "Document link not found!", "error");
+      const todayDate = getFormattedIssueDate();
+
+      Swal.fire({
+        title: 'Preparing CR Document...',
+        html: `නිකුත්කල දිනය (<b>${todayDate}</b>) Watermark එකට එක් කරමින්... ⏳`,
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      try {
+        const res = await apiCall('getCRFileBase64', { fileUrl: crUrl });
+        if (!res.success || !res.base64) {
+          throw new Error(res.error || "Could not load file from Drive");
+        }
+
+        const mimeType = res.mimeType || "application/pdf";
+        const cleanVeh = String(vehNo || "CR").replace(/[^a-zA-Z0-9_-]/g, "_");
+        let finalBlob, ext;
+
+        if (mimeType.includes("pdf")) {
+          ext = ".pdf";
+          const rawBytes = Uint8Array.from(atob(res.base64), c => c.charCodeAt(0));
+          const pdfDoc = await PDFLib.PDFDocument.load(rawBytes);
+          const dateSealUrl = await getSealImageBase64(todayDate, true);
+          const dateSealImg = await pdfDoc.embedPng(dateSealUrl);
+          const { width: sealWidth, height: sealHeight } = dateSealImg.scale(0.8);
+
+          const pages = pdfDoc.getPages();
+          for (let i = 0; i < pages.length; i++) {
+            const page = pages[i];
+            const { width, height } = page.getSize();
+            page.drawImage(dateSealImg, {
+              x: (width / 2) - (sealWidth / 2),
+              y: (height / 2) - (sealHeight / 2),
+              width: sealWidth,
+              height: sealHeight
+            });
+          }
+          const updatedPdfBytes = await pdfDoc.save();
+          finalBlob = new Blob([updatedPdfBytes], { type: 'application/pdf' });
+        } else {
+          ext = ".jpg";
+          finalBlob = await new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              canvas.width = img.width;
+              canvas.height = img.height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0);
+              drawImageSealOnCanvas(ctx, canvas.width, canvas.height, todayDate, true);
+              canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
+            };
+            img.onerror = err => reject(err);
+            img.src = `data:${mimeType};base64,${res.base64}`;
+          });
+        }
+
+        Swal.close();
+
+        if (currentCRBlobUrl) URL.revokeObjectURL(currentCRBlobUrl);
+        currentCRBlobUrl = URL.createObjectURL(finalBlob);
+        const downloadName = `CR_${cleanVeh}_${todayDate}${ext}`;
+
+        if (mode === 'download') {
+          const a = document.createElement('a');
+          a.href = currentCRBlobUrl;
+          a.download = downloadName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          document.getElementById('cr_prev_title').innerText = `CR Document - ${vehNo}`;
+          document.getElementById('cr_prev_subtitle').innerText = `මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${todayDate}`;
+          const dlBtn = document.getElementById('cr_prev_download_btn');
+          dlBtn.href = currentCRBlobUrl;
+          dlBtn.download = downloadName;
+
+          const iframe = document.getElementById('cr_prev_iframe');
+          const imgEl = document.getElementById('cr_prev_img');
+          if (ext === ".pdf") {
+            imgEl.style.display = 'none';
+            iframe.src = currentCRBlobUrl;
+            iframe.style.display = 'block';
+          } else {
+            iframe.style.display = 'none';
+            imgEl.src = currentCRBlobUrl;
+            imgEl.style.display = 'block';
+          }
+          document.getElementById('cr-preview-modal').style.display = 'flex';
+        }
+      } catch (err) {
+        console.error("Dynamic Watermark Error:", err);
+        Swal.close();
+        window.open(crUrl, '_blank');
+      }
+    }
+
+    var crHistoryLoaded = false;
+    var crHistoryLoading = false;
+
     async function loadCRHistory() {
       var tbody = document.querySelector("#crHistoryTable tbody");
       if(!tbody) return;
+      crHistoryLoading = true;
       tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>Loading data...</td></tr>";
       
       try {
         const res = await apiCall('getCRUploadHistory', { role: currentUser.role, branch: currentUser.branch, email: currentUser.email }, 'GET');
         tbody.innerHTML = "";
+        crHistoryLoaded = true;
+        crHistoryLoading = false;
         if (!res.data || res.data.length === 0) {
           tbody.innerHTML = "<tr><td colspan='7' style='text-align:center;'>No CR Upload History found.</td></tr>";
           return;
         }
         
         res.data.forEach(r => {
-          var fileLink = `<a href="${r.crUrl}" target="_blank" style="background:#28a745; color:white; padding:5px 10px; border-radius:4px; text-decoration:none; font-size:12px; font-weight:bold;">View Document</a>`;
+          var safeUrl = (r.crUrl || "").replace(/'/g, "\'");
+          var safeVeh = (r.vehNo || "CR").replace(/'/g, "\'");
+          var fileLink = `
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button onclick="viewOrDownloadCR('${safeUrl}', '${safeVeh}', 'view')" style="background:#28a745; color:white; padding:6px 10px; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">
+                <i class="fas fa-eye"></i> View
+              </button>
+              <button onclick="viewOrDownloadCR('${safeUrl}', '${safeVeh}', 'download')" style="background:#0d6efd; color:white; padding:6px 10px; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">
+                <i class="fas fa-download"></i> Download
+              </button>
+            </div>`;
           tbody.innerHTML += `<tr><td><b style="color:#e67e22;">${r.company}</b></td><td>${r.uploadDate}</td><td><b>${r.refNo}</b></td><td><span style="color:#0d6efd;font-weight:bold;">${r.vehNo}</span></td><td>${r.makeModel}</td><td>${r.uploadedBy}</td><td>${fileLink}</td></tr>`;
         });
+
+        filterCRHistoryTable(true);
       } catch(e) {
+        crHistoryLoading = false;
         tbody.innerHTML = "<tr><td colspan='7' style='text-align:center; color:red;'>Error Loading Report</td></tr>";
       }
+    }
+
+    function filterCRHistoryTable(skipAutoLoad) {
+      if (!skipAutoLoad && !crHistoryLoaded && !crHistoryLoading) {
+        loadCRHistory();
+        return;
+      }
+      var fDate = document.getElementById("crFromDate") ? document.getElementById("crFromDate").value : "";
+      var tDate = document.getElementById("crToDate") ? document.getElementById("crToDate").value : "";
+      var uType = document.getElementById("crTypeFilter") ? document.getElementById("crTypeFilter").value.toLowerCase() : "";
+      var search = document.getElementById("crHistorySearch") ? document.getElementById("crHistorySearch").value.toLowerCase().trim() : "";
+
+      var table = document.getElementById("crHistoryTable");
+      if (!table) return;
+      var tr = table.getElementsByTagName("tr");
+
+      for (var i = 1; i < tr.length; i++) {
+        var tds = tr[i].getElementsByTagName("td");
+        if (tds.length < 6) continue;
+
+        var tdComp = tds[0].innerText.toLowerCase();
+        var tdDateStr = (tds[1].textContent || tds[1].innerText).trim();
+        var tdRef = tds[2].innerText.toLowerCase();
+        var tdVeh = tds[3].innerText.toLowerCase();
+        var tdMake = tds[4].innerText.toLowerCase();
+        var tdUser = tds[5].innerText.toLowerCase();
+
+        var matchSearch = !search ||
+          tdVeh.indexOf(search) > -1 ||
+          tdRef.indexOf(search) > -1 ||
+          tdComp.indexOf(search) > -1 ||
+          tdMake.indexOf(search) > -1 ||
+          tdUser.indexOf(search) > -1;
+
+        var isDirect = tdRef.indexOf("(direct)") > -1 || tdMake.indexOf("direct cr") > -1;
+        var matchType = true;
+        if (uType === "direct") matchType = isDirect;
+        else if (uType === "valuation") matchType = !isDirect;
+
+        var matchDate = true;
+        var datePart = tdDateStr.split(" ")[0];
+        var rowDate = new Date(datePart);
+        if (!isNaN(rowDate.getTime())) {
+          if (fDate) {
+            var fromObj = new Date(fDate);
+            fromObj.setHours(0, 0, 0, 0);
+            if (rowDate < fromObj) matchDate = false;
+          }
+          if (tDate) {
+            var toObj = new Date(tDate);
+            toObj.setHours(23, 59, 59, 999);
+            if (rowDate > toObj) matchDate = false;
+          }
+        }
+
+        tr[i].style.display = (matchSearch && matchType && matchDate) ? "" : "none";
+      }
+    }
+
+    function clearCRHistoryFilters() {
+      if (document.getElementById("crFromDate")) document.getElementById("crFromDate").value = "";
+      if (document.getElementById("crToDate")) document.getElementById("crToDate").value = "";
+      if (document.getElementById("crTypeFilter")) document.getElementById("crTypeFilter").value = "";
+      if (document.getElementById("crHistorySearch")) document.getElementById("crHistorySearch").value = "";
+      if (crHistoryLoaded) filterCRHistoryTable(true);
     }
 
     async function loadPendingCRTable() {
