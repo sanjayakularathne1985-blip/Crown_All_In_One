@@ -944,7 +944,7 @@
 
   <script>
     // ====== API CONFIGURATION ======
-    const API_URL = "https://script.google.com/macros/s/AKfycbwbt1MVKvbX6C35J24T-1tG4Du01tap6Ep3AXsOVRzMs22tmGxsgMHGtz21k9j_AEJ1Pg/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxjYfv0vaxxAc9QTnLodT7l6hGhs7qPXpbPbyXEgH_pjMDRAGcnr5Fp6pWU6V-8I5Pz/exec";
 
     async function apiCall(action, payload = {}, method = 'POST') {
       try {
@@ -955,7 +955,7 @@
             if (payload.company === undefined || payload.company === "") payload.company = currentUser.company; 
             payload.creatorRole = currentUser.role;
             payload.creatorCompany = currentUser.company;
-            if (payload.username === undefined) payload.username = currentUser.username; 
+            if (payload.username === undefined) payload.username = currentUser.username || ''; 
             
             if (payload.data && typeof payload.data === 'object') {
                 if (payload.data.company === undefined || payload.data.company === "") {
@@ -1925,29 +1925,47 @@
            if (m.includes("Admin-Map")) document.getElementById('chk_admin_map').checked = true;
            if (m.includes("Admin-UserMgt") && m.includes("Admin-Map")) document.getElementById('chk_admin_main').checked = true;
            
-           const setScopeData = (modPrefix, scopeObj) => {
-               if(!scopeObj) return;
+           // Clear previous multi-select selections first
+           document.querySelectorAll('.perm-branch-select option, .perm-company-select option').forEach(opt => opt.selected = false);
+
+           const applySafeSelectValue = (sEl, desiredVal, fallbackVal) => {
+               if(!sEl) return;
+               var val = (desiredVal || "").trim().toUpperCase();
+               if(!val || val === "CUSTOM") val = fallbackVal;
+               if(val === "OWN") val = "BRANCH_MANAGER";
+               if(val === "SELECTED") val = "SELECTED_BRANCH";
+               sEl.value = val;
+               if(!sEl.value || sEl.selectedIndex === -1) {
+                   sEl.value = fallbackVal;
+               }
+           };
+
+           var rawOldScope = (res.data.scope || "").trim().toUpperCase();
+           var defaultModFallback = (rawOldScope && rawOldScope !== "CUSTOM") ? (rawOldScope === "OWN" ? "BRANCH_MANAGER" : rawOldScope) : "MY_REQUESTS";
+           var defaultAdminFallback = (rawOldScope === "ALL_COMPANIES" || rawOldScope === "ALL") ? rawOldScope : "BRANCH_MANAGER";
+
+           const setScopeData = (modPrefix, scopeObj, fallbackVal) => {
                var sEl = document.getElementById('scope_' + modPrefix);
-               if(sEl) {
-                   if(scopeObj.scope === 'SELECTED') scopeObj.scope = 'SELECTED_BRANCH';
-                   sEl.value = scopeObj.scope || "MY_REQUESTS";
-                   toggleModuleBranch(modPrefix);
-                   
-                   if(scopeObj.scope === 'SELECTED_BRANCH' && scopeObj.branches) {
-                       var allowedBranches = scopeObj.branches.split(",");
-                       var selectObj = document.getElementById('branch_' + modPrefix);
-                       if(selectObj) {
-                           for (var i = 0; i < selectObj.options.length; i++) {
-                              selectObj.options[i].selected = allowedBranches.includes(selectObj.options[i].value);
-                           }
+               if(!sEl) return;
+               var targetScope = (scopeObj && scopeObj.scope) ? scopeObj.scope : fallbackVal;
+               applySafeSelectValue(sEl, targetScope, fallbackVal);
+               toggleModuleBranch(modPrefix);
+
+               var finalScope = sEl.value;
+               if(finalScope === 'SELECTED_BRANCH' && scopeObj && scopeObj.branches) {
+                   var allowedBranches = scopeObj.branches.split(",").map(s => s.trim());
+                   var selectObj = document.getElementById('branch_' + modPrefix);
+                   if(selectObj) {
+                       for (var i = 0; i < selectObj.options.length; i++) {
+                          selectObj.options[i].selected = allowedBranches.includes(selectObj.options[i].value.trim());
                        }
-                   } else if(scopeObj.scope === 'SELECTED_COMPANY' && scopeObj.companies) {
-                       var allowedComps = scopeObj.companies.split(",");
-                       var compObj = document.getElementById('company_' + modPrefix);
-                       if(compObj) {
-                           for (var i = 0; i < compObj.options.length; i++) {
-                              compObj.options[i].selected = allowedComps.includes(compObj.options[i].value);
-                           }
+                   }
+               } else if(finalScope === 'SELECTED_COMPANY' && scopeObj && scopeObj.companies) {
+                   var allowedComps = scopeObj.companies.split(",").map(s => s.trim());
+                   var compObj = document.getElementById('company_' + modPrefix);
+                   if(compObj) {
+                       for (var i = 0; i < compObj.options.length; i++) {
+                          compObj.options[i].selected = allowedComps.includes(compObj.options[i].value.trim());
                        }
                    }
                }
@@ -1956,23 +1974,18 @@
            if(res.data.moduleScopes) {
                try {
                    var parsedScopes = JSON.parse(res.data.moduleScopes);
-                   setScopeData('courier', parsedScopes.courier);
-                   setScopeData('rmv', parsedScopes.rmv);
-                   setScopeData('val', parsedScopes.valuation);
-                   setScopeData('admin', parsedScopes.admin);
-                   setScopeData('cr', parsedScopes.cr);
-               } catch(e){}
+                   setScopeData('courier', parsedScopes.courier, defaultModFallback);
+                   setScopeData('rmv', parsedScopes.rmv, defaultModFallback);
+                   setScopeData('val', parsedScopes.val || parsedScopes.valuation, defaultModFallback);
+                   setScopeData('admin', parsedScopes.admin, defaultAdminFallback);
+                   setScopeData('cr', parsedScopes.cr, defaultModFallback);
+               } catch(e){
+                   ['courier', 'rmv', 'val', 'cr'].forEach(m => setScopeData(m, null, defaultModFallback));
+                   setScopeData('admin', null, defaultAdminFallback);
+               }
            } else {
-               var oldScope = res.data.scope || "MY_REQUESTS";
-               ['courier', 'rmv', 'val', 'cr'].forEach(m => {
-                   var sEl = document.getElementById('scope_' + m);
-                   if(sEl) {
-                      sEl.value = oldScope === "OWN" ? "BRANCH_MANAGER" : oldScope;
-                      toggleModuleBranch(m);
-                   }
-               });
-               var adEl = document.getElementById('scope_admin');
-               if(adEl) adEl.value = oldScope === "ALL_COMPANIES" ? "ALL_COMPANIES" : (oldScope === "ALL" ? "ALL" : "BRANCH_MANAGER");
+               ['courier', 'rmv', 'val', 'cr'].forEach(m => setScopeData(m, null, defaultModFallback));
+               setScopeData('admin', null, defaultAdminFallback);
            }
 
            document.getElementById('perm-status-badge').innerText = res.data.status;
@@ -2008,6 +2021,9 @@
            var scopeSelect = document.getElementById('scope_' + modPrefix);
            if(!scopeSelect) return null;
            var scopeVal = scopeSelect.value;
+           if(!scopeVal || scopeVal === 'CUSTOM') {
+               scopeVal = (modPrefix === 'admin') ? 'BRANCH_MANAGER' : 'MY_REQUESTS';
+           }
            if(scopeVal === 'SELECTED') scopeVal = 'SELECTED_BRANCH';
            
            var branches = [];
@@ -2033,18 +2049,30 @@
 
        moduleScopes.courier = getScopeData('courier');
        moduleScopes.rmv = getScopeData('rmv');
-       moduleScopes.valuation = getScopeData('val');
+       moduleScopes.val = getScopeData('val');
+       moduleScopes.valuation = moduleScopes.val;
        moduleScopes.admin = getScopeData('admin');
        moduleScopes.cr = getScopeData('cr');
        
+       var modulesStr = modules.join(",");
+       var moduleScopesStr = JSON.stringify(moduleScopes);
+
        Swal.fire({ title: "Updating Permissions...", allowOutsideClick: false, didOpen: () => Swal.showLoading() });
        
        apiCall('saveUserPermissions', {
           username: user,
-          modules: modules.join(","),
-          moduleScopes: JSON.stringify(moduleScopes)
+          modules: modulesStr,
+          moduleScopes: moduleScopesStr
        }).then(res => {
-          if(res.success) { Swal.fire("Saved!", res.msg, "success"); } 
+          if(res.success) {
+              if (currentUser && currentUser.username && currentUser.username.toLowerCase() === user.toLowerCase()) {
+                  currentUser.allowedModules = modulesStr;
+                  currentUser.moduleScopes = moduleScopesStr;
+                  localStorage.setItem('TestAppUser', JSON.stringify(currentUser));
+                  loadDashboardStats();
+              }
+              Swal.fire("Saved!", res.msg, "success");
+          } 
           else { Swal.fire("Error", res.error || res.msg || "Failed", "error"); }
        }).catch(e => Swal.fire("Error", "Network Error", "error"));
     }
@@ -2306,7 +2334,7 @@
 
         ctx.fillStyle = "rgba(198, 40, 40, 0.48)";
         ctx.font = "900 23px sans-serif";
-        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW - 20);
+        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කරු දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW - 20);
       }
 
       return canvas.toDataURL('image/png');
@@ -2374,7 +2402,7 @@
         let dateFontSize = Math.max(11, Math.floor(fontSize * 0.76));
         ctx.fillStyle = "rgba(198, 40, 40, 0.48)";
         ctx.font = "900 " + dateFontSize + "px sans-serif";
-        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW * 0.95);
+        ctx.fillText(`මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කරු දිනය: ${issueDate}`, offsetX, barY + (barH / 2), barW * 0.95);
       }
       ctx.restore();
     }
@@ -2705,7 +2733,7 @@
 
       Swal.fire({
         title: 'Preparing CR Document...',
-        html: `නිකුත්කල දිනය (<b>${todayDate}</b>) Watermark එකට එක් කරමින්... ⏳`,
+        html: `නිකුත්කරු දිනය (<b>${todayDate}</b>) Watermark එකට එක් කරමින්... ⏳`,
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading()
       });
@@ -2774,7 +2802,7 @@
           document.body.removeChild(a);
         } else {
           document.getElementById('cr_prev_title').innerText = `CR Document - ${vehNo}`;
-          document.getElementById('cr_prev_subtitle').innerText = `මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කල දිනය: ${todayDate}`;
+          document.getElementById('cr_prev_subtitle').innerText = `මසක් සඳහා පමණක් වලංගු වේ - නිකුත්කරු දිනය: ${todayDate}`;
           const dlBtn = document.getElementById('cr_prev_download_btn');
           dlBtn.href = currentCRBlobUrl;
           dlBtn.download = downloadName;
